@@ -188,8 +188,25 @@ export default function CourseGenerator({ user, onCourseCreated }: CourseGenerat
                             {range.min} {getUnitLabel(timeUnit)}
                         </span>
                         <span style={{ fontWeight: '600', color: '#667eea' }}>
-                            {/* Simplified estimates for now */}
-                            ≈ ...
+                            {(() => {
+                                const days = convertToDays(timeValue, timeUnit);
+                                if (timeUnit === 'days') {
+                                    if (days >= 30) return `≈ ${Math.round(days / 30)} ${t('generator.units.months')}`;
+                                    if (days >= 7) return `≈ ${Math.round(days / 7)} ${t('generator.units.weeks')}`;
+                                    return '';
+                                } else if (timeUnit === 'hours') {
+                                    if (days >= 30) return `≈ ${Math.round(days / 30)} ${t('generator.units.months')}`;
+                                    if (days >= 7) return `≈ ${Math.round(days / 7)} ${t('generator.units.weeks')}`;
+                                    return `≈ ${days} ${t('generator.units.days')}`;
+                                } else if (timeUnit === 'weeks') {
+                                    if (days >= 30) return `≈ ${Math.round(days / 30)} ${t('generator.units.months')}`;
+                                    return `≈ ${days} ${t('generator.units.days')}`;
+                                } else if (timeUnit === 'months') {
+                                    if (days >= 30) return `≈ ${days} ${t('generator.units.days')}`;
+                                    return '';
+                                }
+                                return '';
+                            })()}
                         </span>
                         <span>
                             {range.max} {getUnitLabel(timeUnit)}

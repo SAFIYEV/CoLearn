@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import type { Assignment, Question } from '../types';
+import type { Assignment } from '../types';
+import { useLanguage } from '../contexts/LanguageContext';
 
 interface AssignmentViewProps {
     assignment: Assignment;
@@ -8,6 +9,7 @@ interface AssignmentViewProps {
 }
 
 export default function AssignmentView({ assignment, onComplete, onBack }: AssignmentViewProps) {
+    const { t } = useLanguage();
     const [currentQuestion, setCurrentQuestion] = useState(0);
     const [userAnswers, setUserAnswers] = useState<string[]>(new Array(assignment.questions.length).fill(''));
     const [showResults, setShowResults] = useState(false);
@@ -73,7 +75,7 @@ export default function AssignmentView({ assignment, onComplete, onBack }: Assig
                         {score >= 90 ? '🏆' : score >= 70 ? '✅' : '📝'}
                     </div>
                     <h1 style={{ fontSize: '36px', marginBottom: '10px' }}>
-                        {score >= 90 ? 'Отлично!' : score >= 70 ? 'Хорошо!' : 'Можно лучше!'}
+                        {score >= 90 ? t('assignment.excellent') : score >= 70 ? t('assignment.good') : t('assignment.needsImprovement')}
                     </h1>
                     <div style={{
                         fontSize: '48px',
@@ -84,12 +86,12 @@ export default function AssignmentView({ assignment, onComplete, onBack }: Assig
                         {score}%
                     </div>
                     <p style={{ fontSize: '18px', color: '#666' }}>
-                        Правильных ответов: {assignment.questions.filter((q, idx) => q.correctAnswer === userAnswers[idx]).length} из {assignment.questions.length}
+                        {t('assignment.correctCount')} {assignment.questions.filter((q, idx) => q.correctAnswer === userAnswers[idx]).length} {t('assignment.of')} {assignment.questions.length}
                     </p>
                 </div>
 
                 <div style={{ marginBottom: '30px' }}>
-                    <h2 style={{ marginBottom: '20px' }}>Разбор ответов</h2>
+                    <h2 style={{ marginBottom: '20px' }}>{t('assignment.review')}</h2>
                     {assignment.questions.map((q, idx) => {
                         const isCorrect = q.correctAnswer === userAnswers[idx];
                         return (
@@ -114,7 +116,7 @@ export default function AssignmentView({ assignment, onComplete, onBack }: Assig
                                         {isCorrect ? '✅' : '❌'}
                                     </span>
                                     <div style={{ fontWeight: '600', fontSize: '16px' }}>
-                                        Вопрос {idx + 1}
+                                        {t('assignment.question')} {idx + 1}
                                     </div>
                                 </div>
 
@@ -124,13 +126,13 @@ export default function AssignmentView({ assignment, onComplete, onBack }: Assig
 
                                 <div>
                                     <div style={{ fontSize: '14px', color: '#666', marginBottom: '5px' }}>
-                                        Ваш ответ: <span style={{ color: isCorrect ? '#4caf50' : '#f44336', fontWeight: '600' }}>
-                                            {userAnswers[idx] || 'Не выбрано'}
+                                        {t('assignment.yourAnswer')} <span style={{ color: isCorrect ? '#4caf50' : '#f44336', fontWeight: '600' }}>
+                                            {userAnswers[idx] || t('assignment.notSelected')}
                                         </span>
                                     </div>
                                     {!isCorrect && (
                                         <div style={{ fontSize: '14px', color: '#4caf50', fontWeight: '600' }}>
-                                            Правильный ответ: {q.correctAnswer}
+                                            {t('assignment.correctAnswer')} {q.correctAnswer}
                                         </div>
                                     )}
                                 </div>
@@ -153,7 +155,7 @@ export default function AssignmentView({ assignment, onComplete, onBack }: Assig
                         cursor: 'pointer'
                     }}
                 >
-                    Завершить
+                    {t('assignment.finish')}
                 </button>
             </div>
         );
@@ -177,7 +179,7 @@ export default function AssignmentView({ assignment, onComplete, onBack }: Assig
                     color: 'var(--text-primary)'
                 }}
             >
-                ← Назад
+                {t('assignment.back')}
             </button>
 
             <h1 style={{ fontSize: '28px', marginBottom: '10px', color: 'var(--text-primary)' }}>
@@ -196,8 +198,8 @@ export default function AssignmentView({ assignment, onComplete, onBack }: Assig
                     fontSize: '14px',
                     color: '#666'
                 }}>
-                    <span>Вопрос {currentQuestion + 1} из {assignment.questions.length}</span>
-                    <span>{Math.round(progress)}% завершено</span>
+                    <span>{t('assignment.question')} {currentQuestion + 1} {t('assignment.of')} {assignment.questions.length}</span>
+                    <span>{Math.round(progress)}% {t('assignment.completed')}</span>
                 </div>
                 <div style={{
                     width: '100%',
@@ -278,7 +280,7 @@ export default function AssignmentView({ assignment, onComplete, onBack }: Assig
                     <textarea
                         value={userAnswers[currentQuestion] || ''}
                         onChange={(e) => handleAnswer(e.target.value)}
-                        placeholder="Введите ваш ответ..."
+                        placeholder={t('assignment.enterAnswer')}
                         style={{
                             width: '100%',
                             minHeight: '150px',
@@ -315,7 +317,7 @@ export default function AssignmentView({ assignment, onComplete, onBack }: Assig
                         cursor: currentQuestion === 0 ? 'not-allowed' : 'pointer'
                     }}
                 >
-                    ← Назад
+                    {t('assignment.back')}
                 </button>
 
                 {currentQuestion < assignment.questions.length - 1 ? (
@@ -335,7 +337,7 @@ export default function AssignmentView({ assignment, onComplete, onBack }: Assig
                             cursor: !userAnswers[currentQuestion] ? 'not-allowed' : 'pointer'
                         }}
                     >
-                        Далее →
+                        {t('assignment.next')}
                     </button>
                 ) : (
                     <button
@@ -354,7 +356,7 @@ export default function AssignmentView({ assignment, onComplete, onBack }: Assig
                             cursor: !userAnswers[currentQuestion] ? 'not-allowed' : 'pointer'
                         }}
                     >
-                        Завершить тест ✓
+                        {t('assignment.finishTest')}
                     </button>
                 )}
             </div>

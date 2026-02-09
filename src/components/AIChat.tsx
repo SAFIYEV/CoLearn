@@ -1,5 +1,4 @@
-
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useLayoutEffect } from 'react';
 import { sendChatMessage } from '../services/gemini';
 import { saveChatMessage, getChatHistory } from '../services/storage';
 import type { ChatMessage } from '../types';
@@ -29,20 +28,36 @@ function renderMarkdown(text: string) {
 
 export default function AIChat() {
     const { t } = useLanguage();
-    const [messages, setMessages] = useState<ChatMessage[]>([]);
+    // Initialize with history immediately to avoid empty render -> populate cycle
+    const [messages, setMessages] = useState<ChatMessage[]>(() => {
+        try {
+            return getChatHistory();
+        } catch (e) {
+            console.error(e);
+            return [];
+        }
+    });
     const [input, setInput] = useState('');
     const [loading, setLoading] = useState(false);
-    const messagesEndRef = useRef<HTMLDivElement>(null);
+    const chatContainerRef = useRef<HTMLDivElement>(null);
 
-    useEffect(() => {
-        // Загружаем историю чата
-        const history = getChatHistory();
-        setMessages(history);
-    }, []);
+    const isFirstRun = useRef(true);
 
-    useEffect(() => {
-        // Автоскролл вниз
-        messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    useLayoutEffect(() => {
+        if (!chatContainerRef.current) return;
+
+        // Use internal scrollTop for precise control
+        if (isFirstRun.current) {
+            // Instant jump to bottom on mount
+            chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
+            isFirstRun.current = false;
+        } else {
+            // Smooth scroll for new messages
+            chatContainerRef.current.scrollTo({
+                top: chatContainerRef.current.scrollHeight,
+                behavior: 'smooth'
+            });
+        }
     }, [messages]);
 
     const handleSend = async () => {
@@ -76,19 +91,9 @@ export default function AIChat() {
             const errorMessage: ChatMessage = {
                 id: (Date.now() + 1).toString(),
                 role: 'assistant',
-                content: t('chat.error') + error.message, // Assuming 'chat.error' exists or just hardcode if needed.
-                // Wait, I didn't add 'chat.error'. I added 'generator.error'.
-                // I'll use 'Sorry, error occured: ' if I don't have a key.
-                // Actually I can just add it locally or hardcode.
-                // Let's check traslations.ts.. I see 'generator.error'.
-                // I'll just use a hardcoded string or a new key if I can.
-                // Let's use hardcoded for now or 'Error: ' + ...
+                content: t('generator.error') + error.message,
                 timestamp: new Date().toISOString()
             };
-            // Better: hardcode localized string based on language? No, I can't access `language` var here easily without destructuring it.
-            // I'll just use English/Russian mixed or `t('generator.error')` which is 'Error generating course: ' - not ideal.
-            // I will use `t('generator.error').replace('...', '')` hack or just hardcode "Error: ".
-            // Let's just use "Error: " + error.message.
             setMessages(prev => [...prev, errorMessage]);
         } finally {
             setLoading(false);
@@ -122,11 +127,14 @@ export default function AIChat() {
             </div>
 
             {/* Messages */}
-            <div style={{
-                flex: 1,
-                overflowY: 'auto',
-                padding: '20px'
-            }}>
+            <div
+                ref={chatContainerRef}
+                style={{
+                    flex: 1,
+                    overflowY: 'auto',
+                    padding: '20px'
+                }}
+            >
                 {messages.length === 0 && (
                     <div style={{
                         textAlign: 'center',
@@ -221,7 +229,7 @@ export default function AIChat() {
                     </div>
                 )}
 
-                <div ref={messagesEndRef} />
+                <div />
             </div>
 
             {/* Input */}

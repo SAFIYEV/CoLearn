@@ -123,6 +123,24 @@ export const translations = {
         'profile.language': 'Язык интерфейса',
         'profile.uploadPhoto': 'Загрузить фото',
         'profile.orChooseEmoji': 'Или выберите эмодзи:',
+
+        // Assignment
+        'assignment.finish': 'Завершить',
+        'assignment.back': '← Назад',
+        'assignment.question': 'Вопрос',
+        'assignment.of': 'из',
+        'assignment.completed': 'завершено',
+        'assignment.review': 'Разбор ответов',
+        'assignment.yourAnswer': 'Ваш ответ:',
+        'assignment.notSelected': 'Не выбрано',
+        'assignment.correctAnswer': 'Правильный ответ:',
+        'assignment.next': 'Далее →',
+        'assignment.finishTest': 'Завершить тест ✓',
+        'assignment.excellent': 'Отлично!',
+        'assignment.good': 'Хорошо!',
+        'assignment.needsImprovement': 'Можно лучше!',
+        'assignment.correctCount': 'Правильных ответов:',
+        'assignment.enterAnswer': 'Введите ваш ответ...',
     },
     en: {
         // Navigation
@@ -245,5 +263,23 @@ export const translations = {
         'profile.language': 'Interface Language',
         'profile.uploadPhoto': 'Upload Photo',
         'profile.orChooseEmoji': 'Or choose emoji:',
+
+        // Assignment
+        'assignment.finish': 'Finish',
+        'assignment.back': '← Back',
+        'assignment.question': 'Question',
+        'assignment.of': 'of',
+        'assignment.completed': 'completed',
+        'assignment.review': 'Review answers',
+        'assignment.yourAnswer': 'Your answer:',
+        'assignment.notSelected': 'Not selected',
+        'assignment.correctAnswer': 'Correct answer:',
+        'assignment.next': 'Next →',
+        'assignment.finishTest': 'Finish Test ✓',
+        'assignment.excellent': 'Excellent!',
+        'assignment.good': 'Good!',
+        'assignment.needsImprovement': 'Needs improvement!',
+        'assignment.correctCount': 'Correct answers:',
+        'assignment.enterAnswer': 'Enter your answer...',
     }
 };

@@ -1,60 +1,60 @@
-# 🎨 Система дизайна LearnAI
+# 🎨 CoLearn Design System
 
-## Обзор
+## Overview
 
-LearnAI теперь использует современную систему дизайна 2026 года, включающую:
-- ✨ **Dark Glassmorphism** - эффект матового стекла для тёмной темы
-- ☀️ **Soft Light Theme** - мягкая светлая тема с естественными цветами  
-- 🎭 **Плавное переключение тем** - без "прыжков" и глюков
-- 🌈 **CSS переменные** - легкая кастомизация дизайна
-- 💫 **Micro-animations** - приятные анимации при взаимодействии
+CoLearn now uses a modern 2026 design system, including:
+- ✨ **Dark Glassmorphism** - frosted glass effect for dark theme
+- ☀️ **Soft Light Theme** - soft light theme with natural colors
+- 🎭 **Smooth Theme Switching** - no "jumps" or glitches
+- 🌈 **CSS Variables** - easy design customization
+- 💫 **Micro-animations** - pleasant animations on interaction
 
-## Темы
+## Themes
 
-### 🌙 Тёмная тема
-- **Фон**: Глубокие синие тона (#0f0f1a - #2d2d44)
-- **Текст**: ЧИТАБЕЛЬНЫЙ белый цвет (#f5f5f5)
-- **Акценты**: Яркие  градиенты (#a78bfa → #818cf8 → #c084fc)
-- **Эффекты**: Glassmorphism с blur(16px) и glow-эффектами
+### 🌙 Dark Theme
+- **Background**: Deep blue tones (#0f0f1a - #2d2d44)
+- **Text**: READABLE white color (#f5f5f5)
+- **Accents**: Bright gradients (#a78bfa → #818cf8 → #c084fc)
+- **Effects**: Glassmorphism with blur(16px) and glow effects
 
-### ☀️ Светлая тема
-- **Фон**: Тёплые натуральные тона (#fafaf9 - #e7e5e4)
-- **Текст**: Высококонтрастный серо-черный (#1c1917) 
-- **Акценты**: Гармоничные фиолетовые (#8b5cf6 → #6366f1)
-- **Эффекты**: Мягкие тени и прозрачность
+### ☀️ Light Theme
+- **Background**: Warm natural tones (#fafaf9 - #e7e5e4)
+- **Text**: High-contrast grey-black (#1c1917)
+- **Accents**: Harmonious purples (#8b5cf6 → #6366f1)
+- **Effects**: Soft shadows and transparency
 
-## CSS Переменные
+## CSS Variables
 
-### Цвета фона
-- `--bg-primary` - основной фон приложения
-- `--bg-secondary` - вторичный фон для карточек
-- `--bg-tertiary` - третичный фон
-- `--bg-elevated` - приподнятые элементы
+### Background Colors
+- `--bg-primary` - main application background
+- `--bg-secondary` - secondary background for cards
+- `--bg-tertiary` - tertiary background
+- `--bg-elevated` - elevated elements
 
-### Цвета текста
-- `--text-primary` - основной текст (ВСЕГДА читабелен!)
-- `--text-secondary` - вторичный текст
-- `--text-tertiary` - третичный текст
-- `--text-inverse` - инверсный текст (для кнопок)
+### Text Colors
+- `--text-primary` - main text (ALWAYS readable!)
+- `--text-secondary` - secondary text
+- `--text-tertiary` - tertiary text
+- `--text-inverse` - inverse text (for buttons)
 
-### Акцентные цвета
-- `--accent-primary` - основной акцент
-- `--accent-secondary` - вторичный акцент
-- `--accent-gradient` - градиент для кнопок и элементов
-- `--accent-hover` - цвет при наведении
+### Accent Colors
+- `--accent-primary` - primary accent
+- `--accent-secondary` - secondary accent
+- `--accent-gradient` - gradient for buttons and elements
+- `--accent-hover` - color on hover
 
-### Статусные цвета
-- `--success` - успех (#10b981 / #34d399)
-- `--warning` - предупреждение (#f59e0b / #fbbf24)
-- `--error` - ошибка (#ef4444 / #f87171)
-- `--info` - информация (#3b82f6 / #60a5fa)
+### Status Colors
+- `--success` - success (#10b981 / #34d399)
+- `--warning` - warning (#f59e0b / #fbbf24)
+- `--error` - error (#ef4444 / #f87171)
+- `--info` - info (#3b82f6 / #60a5fa)
 
-### Границы и тени
-- `--border-light / medium / dark` - границы разной интенсивности
-- `--shadow-sm / md / lg / xl` - тени разных размеров
-- `--glow-primary / secondary` - свечение для тёмной темы
+### Borders and Shadows
+- `--border-light / medium / dark` - borders of varying intensity
+- `--shadow-sm / md / lg / xl` - shadows of different sizes
+- `--glow-primary / secondary` - glow for dark theme
 
-## Утилиты CSS
+## CSS Utilities
 
 ### Glassmorphism
 ```css
@@ -66,7 +66,7 @@ LearnAI теперь использует современную систему 
 }
 ```
 
-### Карточки
+### Cards
 ```css
 .card {
   background: var(--bg-elevated);
@@ -82,7 +82,7 @@ LearnAI теперь использует современную систему 
 }
 ```
 
-### Кнопки
+### Buttons
 ```css
 .btn {
   padding: 12px 24px;
@@ -104,7 +104,7 @@ LearnAI теперь использует современную систему 
 }
 ```
 
-### Анимации
+### Animations
 ```css
 .fade-in {
   animation: fadeIn 0.5s ease;
@@ -115,53 +115,53 @@ LearnAI теперь использует современную систему 
 }
 ```
 
-## Переключение тем
+## Theme Switching
 
-Тема переключается в профиле пользователя с помощью красивого toggle switch:
-- Автоматически сохраняется в localStorage
-- Плавный переход между темами (0.3s)
-- Все компоненты автоматически адаптируются
+The theme is switched in the user profile using a beautiful toggle switch:
+- Automatically saved to localStorage
+- Smooth transition between themes (0.3s)
+- All components automatically adapt
 
-## Типографика
+## Typography
 
-- **Шрифт**: Inter (Google Fonts)
-- **Веса**: 300, 400, 500, 600, 700, 800
-- **Line-height**: 1.6 для читаемости
-- **Letter-spacing**: -0.02em для заголовков
+- **Font**: Inter (Google Fonts)
+- **Weights**: 300, 400, 500, 600, 700, 800
+- **Line-height**: 1.6 for readability
+- **Letter-spacing**: -0.02em for headers
 
-## Рекомендации
+## Recommendations
 
-1. **Всегда используй CSS переменные** вместо жёстких цветов
-2. **Добавляй класс `card`** для карточек
-3. **Используй `btn btn-primary/secondary`** для кнопок
-4. **Добавляй анимации** через классы `.fade-in`, `.slide-in`
-5. **Проверяй контраст текста** - особенно в тёмной теме!
+1. **Always use CSS variables** instead of hardcoded colors
+2. **Add `card` class** for cards
+3. **Use `btn btn-primary/secondary`** for buttons
+4. **Add animations** via `.fade-in`, `.slide-in` classes
+5. **Check text contrast** - especially in dark theme!
 
-## Примеры использования
+## Usage Examples
 
-### Кнопка
+### Button
 ```tsx
 <button className="btn btn-primary">
-  ✨ Создать курс
+  ✨ Create Course
 </button>
 ```
 
-### Карточка
+### Card
 ```tsx
 <div className="card">
-  <h3>Заголовок</h3>
-  <p>Контент карточки</p>
+  <h3>Header</h3>
+  <p>Card content</p>
 </div>
 ```
 
-### Анимированный блок
+### Animated Block
 ```tsx
 <div className="fade-in card">
-  Я появляюсь с анимацией!
+  I appear with animation!
 </div>
 ```
 
 ---
 
-**Разработано с ❤️ для LearnAI**
+**Developed with ❤️ for CoLearn**
 *Inspired by 2026 design trends: Dark Glassmorphism, Natural Light Themes, Micro-animations*

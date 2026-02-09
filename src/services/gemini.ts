@@ -71,6 +71,11 @@ export async function generateCourse(goal: string, duration: number): Promise<Co
 - Вопросы должны быть практическими и проверять понимание
 
 Верни ТОЛЬКО JSON без дополнительного текста.
+
+ВАЖНОЕ ПРИМЕЧАНИЕ ПО ЯЗЫКУ:
+Если цель (goal) пользователя написана на английском языке, весь контент курса (заголовки, описания, уроки, вопросы) ДОЛЖЕН быть на английском языке.
+Если цель на русском - на русском.
+Всегда адаптируй язык контента под язык запроса пользователя.
 `;
 
   const result = await model.generateContent(prompt);
@@ -141,8 +146,8 @@ export async function sendChatMessage(message: string, context?: string): Promis
   const model = genAI.getGenerativeModel({ model: 'gemini-3-flash-preview' });
 
   const prompt = context
-    ? `Контекст: ${context}\n\nВопрос пользователя: ${message}\n\nОтвет:`
-    : message;
+    ? `Контекст: ${context}\n\nВопрос пользователя: ${message}\n\nОтвет (отвечай на языке вопроса пользователя):`
+    : `${message}\n\n(Отвечай на языке вопроса пользователя)`;
 
   const result = await model.generateContent(prompt);
   const response = await result.response;

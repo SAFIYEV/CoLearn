@@ -1,26 +1,26 @@
-# 🚀 Команды для запуска проекта
+# 🚀 Project Launch Commands
 
-## Установка зависимостей
+## Install Dependencies
 
 ```bash
 npm install react-router-dom @google/generative-ai lucide-react
 ```
 
-## Запуск dev сервера
+## Start Dev Server
 
 ```bash
 npm run dev
 ```
 
-После выполнения команды откройте браузер и перейдите по адресу, который покажет Vite (обычно http://localhost:5173)
+After running the command, open your browser and navigate to the address shown by Vite (usually http://localhost:5173)
 
-## Сборка для продакшена (опционально)
+## Build for Production (Optional)
 
 ```bash
 npm run build
 ```
 
-## Предпросмотр продакшен сборки
+## Preview Production Build
 
 ```bash
 npm run preview
@@ -28,4 +28,4 @@ npm run preview
 
 ---
 
-**Важно**: Убедитесь, что вы находитесь в директории `Hackaton` перед выполнением команд!
+**Important**: Make sure you are in the `Hackaton` directory before running commands!

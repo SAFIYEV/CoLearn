@@ -402,3 +402,36 @@ button:not(.no-theme-transition),
   background: var(--bg-tertiary);
   border-color: var(--accent-primary);
 }
+
+/* Mobile Responsive Utilities */
+@media (max-width: 768px) {
+  .desktop-only {
+    display: none !important;
+  }
+
+  .mobile-full-width {
+    width: 100% !important;
+    min-width: 0 !important;
+  }
+
+  .card {
+    padding: 20px !important;
+  }
+
+  body {
+    font-size: 14px;
+  }
+
+  h1 {
+    font-size: 24px !important;
+  }
+
+  h2 {
+    font-size: 20px !important;
+  }
+
+  /* Adjust grid for mobile */
+  .grid-container {
+    grid-template-columns: 1fr !important;
+  }
+}
