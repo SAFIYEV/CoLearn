@@ -165,13 +165,13 @@ ${lessonContent.slice(0, 3000)}
 
 STUDENT'S QUESTION: ${userQuestion}
 
-RULES:
-1. ALWAYS respond in the SAME language as the student's question. If the question is in English, respond in English. If in Russian, respond in Russian. If in Spanish, respond in Spanish.
-2. Use simple, clear language
-3. Use examples from the lesson
-4. Be friendly and encouraging
-5. Keep your answer under 200 words
-6. Do NOT use markdown formatting like ** or ### or * — write plain text only. Use line breaks for readability.`;
+STRICT RULES:
+1. ALWAYS respond in the SAME language as the student's question.
+2. Keep your answer SHORT — maximum 3-5 sentences. Be concise and precise.
+3. Give ONE clear example if needed, not multiple.
+4. NEVER use any markdown: no **, no *, no ###, no bullet points, no lists. Plain text only.
+5. Use simple line breaks to separate thoughts.
+6. Be friendly but brief.`;
 
   const model = tutorAI.getGenerativeModel({ model: 'gemini-3-flash-preview' });
   const result = await model.generateContent(prompt);
