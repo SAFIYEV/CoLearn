@@ -2,7 +2,9 @@ import { GoogleGenerativeAI } from '@google/generative-ai';
 import type { Course } from '../types';
 
 const API_KEY = import.meta.env.VITE_GEMINI_API_KEY;
+const TUTOR_API_KEY = import.meta.env.VITE_GEMINI_TUTOR_API_KEY;
 const genAI = new GoogleGenerativeAI(API_KEY);
+const tutorAI = new GoogleGenerativeAI(TUTOR_API_KEY);
 
 
 export async function generateCourse(goal: string, duration: number): Promise<Course> {
@@ -171,7 +173,7 @@ ${lessonContent.slice(0, 3000)}
 5. Ответ не должен быть длиннее 300 слов
 6. Отвечай на языке вопроса ученика`;
 
-  const model = genAI.getGenerativeModel({ model: 'gemini-3-flash-preview' });
+  const model = tutorAI.getGenerativeModel({ model: 'gemini-3-flash-preview' });
   const result = await model.generateContent(prompt);
   const response = await result.response;
   return response.text();
