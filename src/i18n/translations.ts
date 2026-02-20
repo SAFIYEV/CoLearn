@@ -67,6 +67,7 @@ export const translations = {
         'course.backToModule': '← Назад к модулю',
         'course.completeLesson': 'Завершить урок',
         'course.completedLesson': 'Урок завершён',
+        'course.progressComplete': 'Завершено!',
         'course.assignmentsLocked': 'Пройдите все уроки модуля, чтобы открыть задания',
 
         // Class
@@ -124,6 +125,9 @@ export const translations = {
         'profile.language': 'Язык интерфейса',
         'profile.uploadPhoto': 'Загрузить фото',
         'profile.orChooseEmoji': 'Или выберите эмодзи:',
+        'profile.theme': 'Тема',
+        'profile.themeLight': 'Светлая',
+        'profile.themeDark': 'Тёмная',
 
         // Assignment
         'assignment.finish': 'Завершить',
@@ -198,6 +202,7 @@ export const translations = {
         'tutor.q1': 'Объясни проще',
         'tutor.q2': 'Приведи пример',
         'tutor.q3': 'Задай мне вопрос',
+        'tutor.error': 'Ошибка. Попробуйте ещё раз.',
 
         // Leaderboard
         'class.tab.leaderboard': 'Рейтинг',
@@ -278,6 +283,7 @@ export const translations = {
         'course.backToModule': '← Back to Module',
         'course.completeLesson': 'Complete Lesson',
         'course.completedLesson': 'Lesson Completed',
+        'course.progressComplete': 'Complete!',
         'course.assignmentsLocked': 'Complete all lessons to unlock assignments',
 
         // Class
@@ -334,6 +340,9 @@ export const translations = {
         'profile.language': 'Interface Language',
         'profile.uploadPhoto': 'Upload Photo',
         'profile.orChooseEmoji': 'Or choose emoji:',
+        'profile.theme': 'Theme',
+        'profile.themeLight': 'Light',
+        'profile.themeDark': 'Dark',
 
         // Assignment
         'assignment.finish': 'Finish',
@@ -408,6 +417,7 @@ export const translations = {
         'tutor.q1': 'Explain simpler',
         'tutor.q2': 'Give an example',
         'tutor.q3': 'Quiz me',
+        'tutor.error': 'Error. Please try again.',
 
         // Leaderboard
         'class.tab.leaderboard': 'Leaderboard',

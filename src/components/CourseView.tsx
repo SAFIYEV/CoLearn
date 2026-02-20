@@ -26,7 +26,7 @@ function renderMarkdown(text: string) {
     return html;
 }
 
-function AnimatedProgress({ progress, label }: { progress: number; label: string }) {
+function AnimatedProgress({ progress, label, completeLabel }: { progress: number; label: string; completeLabel: string }) {
     const [displayProgress, setDisplayProgress] = useState(progress);
     const [isAnimating, setIsAnimating] = useState(false);
     const [showCelebration, setShowCelebration] = useState(false);
@@ -114,7 +114,7 @@ function AnimatedProgress({ progress, label }: { progress: number; label: string
             <div style={{ fontSize: '13px', color: 'var(--text-secondary)', fontWeight: '600' }}>{label}</div>
             {displayProgress === 100 && (
                 <div style={{ marginTop: '8px', fontSize: '12px', fontWeight: '700', color: 'var(--success)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}>
-                    ✅ Complete!
+                    ✅ {completeLabel}
                 </div>
             )}
         </div>
@@ -243,7 +243,7 @@ export default function CourseView({ user, course: initialCourse, onBack }: Cour
             const answer = await askTutor(currentModule.lessons[selectedLesson].content, q);
             setTutorMessages(prev => [...prev, { role: 'ai', text: answer }]);
         } catch {
-            setTutorMessages(prev => [...prev, { role: 'ai', text: 'Ошибка. Попробуйте ещё раз.' }]);
+            setTutorMessages(prev => [...prev, { role: 'ai', text: t('tutor.error') }]);
         }
         setTutorLoading(false);
     };
@@ -427,7 +427,7 @@ export default function CourseView({ user, course: initialCourse, onBack }: Cour
                 </button>
 
                 <h2 style={{ fontSize: '18px', marginBottom: '8px', color: 'var(--text-primary)' }}>{course.title}</h2>
-                <AnimatedProgress progress={course.progress} label={t('course.progress')} />
+                <AnimatedProgress progress={course.progress} label={t('course.progress')} completeLabel={t('course.progressComplete')} />
 
                 {course.modules.map((module, idx) => {
                     const unlocked = isModuleUnlocked(idx);

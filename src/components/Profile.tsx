@@ -88,7 +88,7 @@ export default function Profile({ user, courses, onUpdate, onLogout }: ProfilePr
                     marginBottom: '15px',
                     color: 'var(--text-primary)',
                     fontWeight: '600'
-                }}>🎨 Тема</h3>
+                }}>🎨 {t('profile.theme')}</h3>
                 <div style={{
                     display: 'flex',
                     alignItems: 'center',
@@ -99,7 +99,7 @@ export default function Profile({ user, courses, onUpdate, onLogout }: ProfilePr
                         fontSize: '14px',
                         fontWeight: '500'
                     }}>
-                        {theme === 'light' ? '☀️ Светлая' : '🌙 Тёмная'}
+                        {theme === 'light' ? `☀️ ${t('profile.themeLight')}` : `🌙 ${t('profile.themeDark')}`}
                     </span>
                     <button
                         onClick={toggleTheme}
