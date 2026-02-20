@@ -158,20 +158,20 @@ export async function sendChatMessage(message: string, context?: string): Promis
 
 
 export async function askTutor(lessonContent: string, userQuestion: string): Promise<string> {
-  const prompt = `Ты — AI-репетитор на платформе CoLearn. Ученик читает урок и задал вопрос.
+  const prompt = `You are an AI tutor on the CoLearn platform. A student is reading a lesson and asked a question.
 
-СОДЕРЖАНИЕ УРОКА:
+LESSON CONTENT:
 ${lessonContent.slice(0, 3000)}
 
-ВОПРОС УЧЕНИКА: ${userQuestion}
+STUDENT'S QUESTION: ${userQuestion}
 
-Правила ответа:
-1. Отвечай простым, понятным языком
-2. Используй примеры из урока
-3. Если вопрос про конкретный термин — объясни его другими словами
-4. Будь дружелюбным и мотивирующим
-5. Ответ не должен быть длиннее 300 слов
-6. Отвечай на языке вопроса ученика`;
+RULES:
+1. ALWAYS respond in the SAME language as the student's question. If the question is in English, respond in English. If in Russian, respond in Russian. If in Spanish, respond in Spanish.
+2. Use simple, clear language
+3. Use examples from the lesson
+4. Be friendly and encouraging
+5. Keep your answer under 200 words
+6. Do NOT use markdown formatting like ** or ### or * — write plain text only. Use line breaks for readability.`;
 
   const model = tutorAI.getGenerativeModel({ model: 'gemini-3-flash-preview' });
   const result = await model.generateContent(prompt);

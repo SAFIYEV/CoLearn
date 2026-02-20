@@ -752,10 +752,11 @@ export default function CourseView({ user, course: initialCourse, onBack }: Cour
                                             }}>
                                                 <div style={{
                                                     padding: '10px 14px', borderRadius: '12px',
-                                                    maxWidth: '90%', fontSize: '14px', lineHeight: '1.5',
+                                                    maxWidth: '90%', fontSize: '14px', lineHeight: '1.6',
                                                     background: msg.role === 'user' ? 'var(--accent-gradient)' : 'var(--bg-secondary)',
                                                     color: msg.role === 'user' ? 'white' : 'var(--text-primary)',
-                                                    border: msg.role === 'ai' ? '1px solid var(--border-medium)' : 'none'
+                                                    border: msg.role === 'ai' ? '1px solid var(--border-medium)' : 'none',
+                                                    whiteSpace: 'pre-wrap', wordBreak: 'break-word'
                                                 }}>
                                                     {msg.text}
                                                 </div>
