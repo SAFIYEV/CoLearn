@@ -139,6 +139,18 @@ export default function CourseView({ user, course: initialCourse, onBack }: Cour
     const [tutorMessages, setTutorMessages] = useState<{ role: 'user' | 'ai'; text: string }[]>([]);
     const [tutorLoading, setTutorLoading] = useState(false);
 
+    // Mobile
+    const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+    const [showMobileSidebar, setShowMobileSidebar] = useState(true);
+
+    useEffect(() => {
+        const handleResize = () => {
+            setIsMobile(window.innerWidth < 768);
+        };
+        window.addEventListener('resize', handleResize);
+        return () => window.removeEventListener('resize', handleResize);
+    }, []);
+
     const currentModule = course.modules[selectedModule];
 
     // --- Sequential access helpers ---
@@ -285,7 +297,7 @@ export default function CourseView({ user, course: initialCourse, onBack }: Cour
     const lessonsAllDone = allLessonsInModuleDone(selectedModule);
 
     return (
-        <div style={{ display: 'flex', height: '100vh' }}>
+        <div style={{ display: 'flex', flexDirection: isMobile ? 'column' : 'row', height: '100vh' }}>
             {/* Certificate Modal */}
             {showCertificate && (
                 <div
@@ -413,21 +425,55 @@ export default function CourseView({ user, course: initialCourse, onBack }: Cour
                 </div>
             )}
 
+            {/* Mobile Header */}
+            {isMobile && (
+                <div style={{
+                    display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                    padding: '12px 16px', background: 'var(--bg-secondary)',
+                    borderBottom: '1px solid var(--border-medium)', flexShrink: 0
+                }}>
+                    <button onClick={onBack} style={{
+                        padding: '8px 12px', background: 'var(--bg-elevated)', color: 'var(--text-primary)',
+                        border: '1px solid var(--border-medium)', borderRadius: '8px',
+                        cursor: 'pointer', fontSize: '13px'
+                    }}>
+                        ←
+                    </button>
+                    <div style={{ flex: 1, textAlign: 'center', fontSize: '14px', fontWeight: '600', color: 'var(--text-primary)', padding: '0 8px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                        {course.title}
+                    </div>
+                    <button onClick={() => setShowMobileSidebar(!showMobileSidebar)} style={{
+                        padding: '8px 12px', background: showMobileSidebar ? 'var(--accent-primary)' : 'var(--bg-elevated)',
+                        color: showMobileSidebar ? 'white' : 'var(--text-primary)',
+                        border: showMobileSidebar ? 'none' : '1px solid var(--border-medium)', borderRadius: '8px',
+                        cursor: 'pointer', fontSize: '13px'
+                    }}>
+                        {showMobileSidebar ? '📖' : '📋'}
+                    </button>
+                </div>
+            )}
+
             {/* Sidebar */}
             <div style={{
-                width: '300px', background: 'var(--bg-secondary)',
-                borderRight: '1px solid var(--border-medium)',
-                overflowY: 'auto', padding: '20px'
+                width: isMobile ? '100%' : '300px',
+                background: 'var(--bg-secondary)',
+                borderRight: isMobile ? 'none' : '1px solid var(--border-medium)',
+                overflowY: 'auto',
+                padding: isMobile ? '16px' : '20px',
+                display: isMobile && !showMobileSidebar ? 'none' : 'block',
+                ...(isMobile ? { flexShrink: 0, maxHeight: '100%' } : {})
             }}>
-                <button onClick={onBack} style={{
-                    padding: '10px 16px', background: 'var(--bg-elevated)', color: 'var(--text-primary)',
-                    border: '1px solid var(--border-medium)', borderRadius: '8px',
-                    cursor: 'pointer', marginBottom: '20px', width: '100%', fontSize: '14px'
-                }}>
-                    {t('course.back')}
-                </button>
+                {!isMobile && (
+                    <button onClick={onBack} style={{
+                        padding: '10px 16px', background: 'var(--bg-elevated)', color: 'var(--text-primary)',
+                        border: '1px solid var(--border-medium)', borderRadius: '8px',
+                        cursor: 'pointer', marginBottom: '20px', width: '100%', fontSize: '14px'
+                    }}>
+                        {t('course.back')}
+                    </button>
+                )}
 
-                <h2 style={{ fontSize: '18px', marginBottom: '8px', color: 'var(--text-primary)' }}>{course.title}</h2>
+                {!isMobile && <h2 style={{ fontSize: '18px', marginBottom: '8px', color: 'var(--text-primary)' }}>{course.title}</h2>}
                 <AnimatedProgress progress={course.progress} label={t('course.progress')} completeLabel={t('course.progressComplete')} />
 
                 {course.modules.map((module, idx) => {
@@ -440,6 +486,7 @@ export default function CourseView({ user, course: initialCourse, onBack }: Cour
                                     if (!unlocked) return;
                                     setSelectedModule(idx);
                                     setSelectedLesson(null);
+                                    if (isMobile) setShowMobileSidebar(false);
                                 }}
                                 style={{
                                     width: '100%', padding: '12px',
@@ -492,13 +539,17 @@ export default function CourseView({ user, course: initialCourse, onBack }: Cour
             </div>
 
             {/* Main content */}
-            <div style={{ flex: 1, overflowY: 'auto', padding: '40px' }}>
+            <div style={{
+                flex: 1, overflowY: 'auto',
+                padding: isMobile ? '20px 16px' : '40px',
+                display: isMobile && showMobileSidebar ? 'none' : 'block'
+            }}>
                 {selectedLesson === null && (
                     <div>
-                        <h1 style={{ fontSize: '32px', marginBottom: '10px', color: 'var(--text-primary)' }}>
+                        <h1 style={{ fontSize: isMobile ? '22px' : '32px', marginBottom: '10px', color: 'var(--text-primary)', wordBreak: 'break-word' }}>
                             {currentModule.title}
                         </h1>
-                        <p style={{ color: 'var(--text-secondary)', marginBottom: '30px', fontSize: '18px' }}>
+                        <p style={{ color: 'var(--text-secondary)', marginBottom: '30px', fontSize: isMobile ? '15px' : '18px' }}>
                             {currentModule.description}
                         </p>
 
@@ -510,7 +561,7 @@ export default function CourseView({ user, course: initialCourse, onBack }: Cour
                                 return (
                                     <div
                                         key={lesson.id}
-                                        onClick={() => unlocked && setSelectedLesson(idx)}
+                                        onClick={() => { if (unlocked) { setSelectedLesson(idx); if (isMobile) setShowMobileSidebar(false); } }}
                                         style={{
                                             padding: '20px',
                                             background: !unlocked ? 'var(--bg-tertiary)' : 'var(--bg-elevated)',
@@ -660,11 +711,11 @@ export default function CourseView({ user, course: initialCourse, onBack }: Cour
                             </button>
                         </div>
 
-                        <h1 style={{ fontSize: '32px', marginBottom: '20px' }}>
+                        <h1 style={{ fontSize: isMobile ? '22px' : '32px', marginBottom: '20px', wordBreak: 'break-word' }}>
                             {currentModule.lessons[selectedLesson].title}
                         </h1>
 
-                        <div style={{ display: 'flex', gap: '20px' }}>
+                        <div style={{ display: 'flex', flexDirection: isMobile ? 'column' : 'row', gap: '20px' }}>
                             {/* Lesson content */}
                             <div style={{ flex: 1, minWidth: 0 }}>
                                 <div style={{
@@ -714,7 +765,7 @@ export default function CourseView({ user, course: initialCourse, onBack }: Cour
                             {/* AI Tutor Panel */}
                             {tutorOpen && (
                                 <div style={{
-                                    width: '350px', flexShrink: 0,
+                                    width: isMobile ? '100%' : '350px', flexShrink: 0,
                                     background: 'var(--bg-elevated)',
                                     border: '1px solid var(--accent-primary)',
                                     borderRadius: '16px', display: 'flex', flexDirection: 'column',
