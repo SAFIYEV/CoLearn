@@ -242,7 +242,8 @@ export default function CourseView({ user, course: initialCourse, onBack }: Cour
         try {
             const answer = await askTutor(currentModule.lessons[selectedLesson].content, q);
             setTutorMessages(prev => [...prev, { role: 'ai', text: answer }]);
-        } catch {
+        } catch (err) {
+            console.error('Tutor error:', err);
             setTutorMessages(prev => [...prev, { role: 'ai', text: t('tutor.error') }]);
         }
         setTutorLoading(false);

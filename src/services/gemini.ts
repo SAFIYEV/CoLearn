@@ -156,8 +156,6 @@ export async function sendChatMessage(message: string, context?: string): Promis
 
 
 export async function askTutor(lessonContent: string, userQuestion: string): Promise<string> {
-  const model = genAI.getGenerativeModel({ model: 'gemini-3-flash-preview' });
-
   const prompt = `Ты — AI-репетитор на платформе CoLearn. Ученик читает урок и задал вопрос.
 
 СОДЕРЖАНИЕ УРОКА:
@@ -173,9 +171,21 @@ ${lessonContent.slice(0, 3000)}
 5. Ответ не должен быть длиннее 300 слов
 6. Отвечай на языке вопроса ученика`;
 
-  const result = await model.generateContent(prompt);
-  const response = await result.response;
-  return response.text();
+  const models = ['gemini-2.0-flash', 'gemini-2.0-flash-lite', 'gemini-1.5-flash'];
+  
+  for (const modelName of models) {
+    try {
+      const model = genAI.getGenerativeModel({ model: modelName });
+      const result = await model.generateContent(prompt);
+      const response = await result.response;
+      return response.text();
+    } catch (err) {
+      console.warn(`Tutor model ${modelName} failed:`, err);
+      continue;
+    }
+  }
+  
+  throw new Error('All tutor models failed');
 }
 
 export async function checkAssignment(userAnswers: any[], questions: any[]): Promise<number> {
