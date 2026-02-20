@@ -234,7 +234,7 @@ export default function CourseView({ user, course: initialCourse, onBack }: Cour
     };
 
     const handleTutorSend = async () => {
-        if (!tutorQuestion.trim() || !selectedLesson) return;
+        if (!tutorQuestion.trim() || selectedLesson === null) return;
         const q = tutorQuestion;
         setTutorQuestion('');
         setTutorMessages(prev => [...prev, { role: 'user', text: q }]);
