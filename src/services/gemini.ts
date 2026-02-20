@@ -2,7 +2,7 @@ import { GoogleGenerativeAI } from '@google/generative-ai';
 import type { Course } from '../types';
 
 const API_KEY = import.meta.env.VITE_GEMINI_API_KEY;
-const TUTOR_API_KEY = import.meta.env.VITE_GEMINI_TUTOR_API_KEY;
+const TUTOR_API_KEY = import.meta.env.VITE_GEMINI_TUTOR_API_KEY || API_KEY;
 const genAI = new GoogleGenerativeAI(API_KEY);
 const tutorAI = new GoogleGenerativeAI(TUTOR_API_KEY);
 
@@ -173,10 +173,18 @@ STRICT RULES:
 5. Use simple line breaks to separate thoughts.
 6. Be friendly but brief.`;
 
-  const model = tutorAI.getGenerativeModel({ model: 'gemini-3-flash-preview' });
-  const result = await model.generateContent(prompt);
-  const response = await result.response;
-  return response.text();
+  try {
+    const model = tutorAI.getGenerativeModel({ model: 'gemini-3-flash-preview' });
+    const result = await model.generateContent(prompt);
+    const response = await result.response;
+    return response.text();
+  } catch (err) {
+    console.error('Tutor API (tutor key) failed, trying main key:', err);
+    const model = genAI.getGenerativeModel({ model: 'gemini-3-flash-preview' });
+    const result = await model.generateContent(prompt);
+    const response = await result.response;
+    return response.text();
+  }
 }
 
 export async function checkAssignment(userAnswers: any[], questions: any[]): Promise<number> {
