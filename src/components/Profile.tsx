@@ -1,17 +1,20 @@
 
 import { useState } from 'react';
-import type { User } from '../types';
+import type { User, Course } from '../types';
 import { updateProfile, logout as authLogout } from '../services/auth';
 import { useLanguage } from '../contexts/LanguageContext';
 import { useTheme } from '../contexts/ThemeContext';
+import { getUserGamification, getLevel, ALL_BADGES } from '../services/gamification';
+import { downloadCertificateImage } from '../services/certificate';
 
 interface ProfileProps {
     user: User;
+    courses: Course[];
     onUpdate: (user: User) => void;
     onLogout: () => void;
 }
 
-export default function Profile({ user, onUpdate, onLogout }: ProfileProps) {
+export default function Profile({ user, courses, onUpdate, onLogout }: ProfileProps) {
     const { t, language, setLanguage } = useLanguage();
     const { theme, toggleTheme } = useTheme();
     const [name, setName] = useState(user.name);
@@ -267,6 +270,160 @@ export default function Profile({ user, onUpdate, onLogout }: ProfileProps) {
                     </div>
                 )}
             </div>
+
+            {/* Stats */}
+            {(() => {
+                const gam = getUserGamification(user.id);
+                const lvl = getLevel(gam.xp);
+                return (
+                    <>
+                        <div className="card" style={{ marginBottom: '30px' }}>
+                            <h3 style={{ fontSize: '18px', marginBottom: '20px', color: 'var(--text-primary)', fontWeight: '600' }}>
+                                📊 {t('profile.stats')}
+                            </h3>
+                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '16px', marginBottom: '20px' }}>
+                                {[
+                                    { icon: '⭐', value: gam.xp, label: 'XP' },
+                                    { icon: '🔥', value: gam.streak, label: t('gamification.streak') },
+                                    { icon: '📚', value: gam.totalLessons, label: t('profile.lessonsCount') },
+                                    { icon: '🏆', value: gam.totalCourses, label: t('profile.coursesCount') }
+                                ].map((s, i) => (
+                                    <div key={i} style={{ textAlign: 'center', padding: '16px 8px', background: 'var(--bg-secondary)', borderRadius: '12px', border: '1px solid var(--border-medium)' }}>
+                                        <div style={{ fontSize: '24px', marginBottom: '4px' }}>{s.icon}</div>
+                                        <div style={{ fontSize: '22px', fontWeight: '800', color: 'var(--text-primary)' }}>{s.value}</div>
+                                        <div style={{ fontSize: '12px', color: 'var(--text-tertiary)', fontWeight: '500' }}>{s.label}</div>
+                                    </div>
+                                ))}
+                            </div>
+                            <div style={{ marginBottom: '8px' }}>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '6px' }}>
+                                    <span style={{ fontSize: '14px', fontWeight: '600', color: 'var(--text-primary)' }}>{t(lvl.nameKey)}</span>
+                                    <span style={{ fontSize: '13px', color: 'var(--text-tertiary)' }}>{gam.xp} / {lvl.nextLevelXp} XP</span>
+                                </div>
+                                <div style={{ width: '100%', height: '8px', background: 'var(--bg-tertiary)', borderRadius: '4px', overflow: 'hidden' }}>
+                                    <div style={{ width: `${lvl.progress}%`, height: '100%', background: 'var(--accent-gradient)', borderRadius: '4px', transition: 'width 0.5s ease' }} />
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="card" style={{ marginBottom: '30px' }}>
+                            <h3 style={{ fontSize: '18px', marginBottom: '20px', color: 'var(--text-primary)', fontWeight: '600' }}>
+                                🏅 {t('profile.badges')}
+                            </h3>
+                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: '12px' }}>
+                                {ALL_BADGES.map(badge => {
+                                    const earned = gam.badges.includes(badge.id);
+                                    return (
+                                        <div key={badge.id} title={t(badge.descKey)} style={{
+                                            textAlign: 'center', padding: '12px 4px',
+                                            background: earned ? 'var(--bg-secondary)' : 'var(--bg-tertiary)',
+                                            borderRadius: '12px',
+                                            border: earned ? '1px solid var(--accent-primary)' : '1px solid var(--border-medium)',
+                                            opacity: earned ? 1 : 0.35,
+                                            transition: 'all 0.2s'
+                                        }}>
+                                            <div style={{ fontSize: '28px', marginBottom: '4px' }}>{badge.icon}</div>
+                                            <div style={{ fontSize: '11px', color: 'var(--text-secondary)', fontWeight: '500' }}>{t(badge.nameKey)}</div>
+                                        </div>
+                                    );
+                                })}
+                            </div>
+                        </div>
+                    </>
+                );
+            })()}
+
+            {/* Certificates */}
+            {(() => {
+                const completed = courses.filter(c => c.status === 'completed');
+                if (completed.length === 0) return null;
+
+                const handleDownload = (c: Course) => {
+                    downloadCertificateImage(
+                        {
+                            userName: user.name,
+                            courseTitle: c.title,
+                            modulesCount: c.modules.length,
+                            lessonsCount: c.modules.reduce((s, m) => s + m.lessons.length, 0),
+                        },
+                        {
+                            label: t('cert.label'),
+                            title: t('cert.title'),
+                            awardedTo: t('cert.awardedTo'),
+                            forCourse: t('cert.forCourse'),
+                            date: t('cert.date'),
+                            modules: t('cert.modules'),
+                            lessons: t('cert.lessons'),
+                        }
+                    );
+                };
+
+                return (
+                    <div className="card" style={{ marginBottom: '30px' }}>
+                        <h3 style={{ fontSize: '18px', marginBottom: '20px', color: 'var(--text-primary)', fontWeight: '600' }}>
+                            🏆 {t('profile.certificates')}
+                        </h3>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                            {completed.map(c => (
+                                <div key={c.id} style={{
+                                    display: 'flex', alignItems: 'center', gap: '16px',
+                                    padding: '16px', borderRadius: '14px',
+                                    background: 'var(--bg-secondary)',
+                                    border: '1px solid var(--border-medium)',
+                                    transition: 'all 0.2s ease'
+                                }}>
+                                    <div style={{
+                                        width: '48px', height: '48px', borderRadius: '12px',
+                                        background: 'linear-gradient(135deg, #1a1028, #0d0d1a)',
+                                        border: '1px solid rgba(139,92,246,0.3)',
+                                        display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                        fontSize: '24px', flexShrink: 0
+                                    }}>
+                                        🏆
+                                    </div>
+                                    <div style={{ flex: 1, minWidth: 0 }}>
+                                        <div style={{
+                                            fontWeight: '600', fontSize: '15px',
+                                            color: 'var(--text-primary)',
+                                            whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis'
+                                        }}>
+                                            {c.title}
+                                        </div>
+                                        <div style={{ fontSize: '12px', color: 'var(--text-tertiary)', marginTop: '2px' }}>
+                                            {c.modules.length} {t('cert.modules')} · {c.modules.reduce((s, m) => s + m.lessons.length, 0)} {t('cert.lessons')}
+                                        </div>
+                                    </div>
+                                    <button
+                                        onClick={() => handleDownload(c)}
+                                        style={{
+                                            padding: '10px 18px',
+                                            background: 'transparent',
+                                            color: '#a78bfa',
+                                            border: '1px solid rgba(139,92,246,0.4)',
+                                            borderRadius: '10px',
+                                            fontSize: '13px', fontWeight: '700',
+                                            cursor: 'pointer',
+                                            transition: 'all 0.3s ease',
+                                            whiteSpace: 'nowrap',
+                                            flexShrink: 0
+                                        }}
+                                        onMouseEnter={(e) => {
+                                            e.currentTarget.style.background = 'rgba(139,92,246,0.1)';
+                                            e.currentTarget.style.borderColor = '#8b5cf6';
+                                        }}
+                                        onMouseLeave={(e) => {
+                                            e.currentTarget.style.background = 'transparent';
+                                            e.currentTarget.style.borderColor = 'rgba(139,92,246,0.4)';
+                                        }}
+                                    >
+                                        📥 {t('cert.download')}
+                                    </button>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                );
+            })()}
 
             {/* Информация */}
             <div className="card" style={{ marginBottom: '30px' }}>

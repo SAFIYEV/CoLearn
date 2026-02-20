@@ -155,6 +155,29 @@ export async function sendChatMessage(message: string, context?: string): Promis
 }
 
 
+export async function askTutor(lessonContent: string, userQuestion: string): Promise<string> {
+  const model = genAI.getGenerativeModel({ model: 'gemini-3-flash-preview' });
+
+  const prompt = `Ты — AI-репетитор на платформе CoLearn. Ученик читает урок и задал вопрос.
+
+СОДЕРЖАНИЕ УРОКА:
+${lessonContent.slice(0, 3000)}
+
+ВОПРОС УЧЕНИКА: ${userQuestion}
+
+Правила ответа:
+1. Отвечай простым, понятным языком
+2. Используй примеры из урока
+3. Если вопрос про конкретный термин — объясни его другими словами
+4. Будь дружелюбным и мотивирующим
+5. Ответ не должен быть длиннее 300 слов
+6. Отвечай на языке вопроса ученика`;
+
+  const result = await model.generateContent(prompt);
+  const response = await result.response;
+  return response.text();
+}
+
 export async function checkAssignment(userAnswers: any[], questions: any[]): Promise<number> {
   let score = 0;
   questions.forEach((question, idx) => {

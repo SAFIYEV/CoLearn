@@ -287,6 +287,35 @@ button:not(.no-theme-transition),
   }
 }
 
+@keyframes celebrationPulse {
+  0% {
+    opacity: 0;
+    transform: scale(0.5);
+  }
+
+  30% {
+    opacity: 1;
+    transform: scale(1.2);
+  }
+
+  100% {
+    opacity: 0;
+    transform: scale(2);
+  }
+}
+
+@keyframes certificateAppear {
+  0% {
+    opacity: 0;
+    transform: scale(0.7) translateY(40px);
+  }
+
+  100% {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
 /* Utility classes */
 .fade-in {
   animation: fadeIn 0.5s ease;

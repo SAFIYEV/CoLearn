@@ -66,7 +66,8 @@ export const translations = {
         'course.result': 'Результат:',
         'course.backToModule': '← Назад к модулю',
         'course.completeLesson': 'Завершить урок',
-        'course.completedLesson': 'Урок завершен ✓',
+        'course.completedLesson': 'Урок завершён',
+        'course.assignmentsLocked': 'Пройдите все уроки модуля, чтобы открыть задания',
 
         // Class
         'class.title': 'Мой Класс',
@@ -141,6 +142,75 @@ export const translations = {
         'assignment.needsImprovement': 'Можно лучше!',
         'assignment.correctCount': 'Правильных ответов:',
         'assignment.enterAnswer': 'Введите ваш ответ...',
+
+        // Certificate
+        'cert.label': 'Сертификат',
+        'cert.title': 'Курс успешно завершён!',
+        'cert.awardedTo': 'Выдан',
+        'cert.forCourse': 'За прохождение курса',
+        'cert.date': 'Дата',
+        'cert.modules': 'Модулей',
+        'cert.lessons': 'Уроков',
+        'cert.close': 'Отлично! 🎉',
+        'cert.download': 'Скачать',
+        'cert.view': 'Сертификат',
+
+        // Gamification
+        'gamification.streak': 'Стрик',
+        'gamification.days': 'дн.',
+        'level.1': 'Новичок',
+        'level.2': 'Ученик',
+        'level.3': 'Знаток',
+        'level.4': 'Мастер',
+        'level.5': 'Эксперт',
+        'level.6': 'Гуру',
+        'level.7': 'Легенда',
+
+        // Badges
+        'badge.first_lesson': 'Первый урок',
+        'badge.first_lesson.desc': 'Пройдите первый урок',
+        'badge.first_course': 'Первый курс',
+        'badge.first_course.desc': 'Завершите первый курс',
+        'badge.streak_3': '3 дня подряд',
+        'badge.streak_3.desc': 'Учитесь 3 дня подряд',
+        'badge.streak_7': 'Неделя огня',
+        'badge.streak_7.desc': 'Учитесь 7 дней подряд',
+        'badge.streak_30': 'Месяц знаний',
+        'badge.streak_30.desc': 'Учитесь 30 дней подряд',
+        'badge.perfect_score': 'Отличник',
+        'badge.perfect_score.desc': '100% за тест',
+        'badge.module_master': 'Мастер модуля',
+        'badge.module_master.desc': 'Завершите модуль',
+        'badge.speed_learner': 'Скорость',
+        'badge.speed_learner.desc': '5 уроков за день',
+        'badge.social': 'Командный игрок',
+        'badge.social.desc': 'Вступите в класс',
+        'badge.ten_lessons': '10 уроков',
+        'badge.ten_lessons.desc': 'Пройдите 10 уроков',
+
+        // AI Tutor
+        'tutor.button': 'AI Репетитор',
+        'tutor.title': 'AI Репетитор',
+        'tutor.subtitle': 'Спросите по теме урока',
+        'tutor.empty': 'Задайте вопрос по уроку',
+        'tutor.placeholder': 'Что непонятно?',
+        'tutor.thinking': 'Думаю...',
+        'tutor.q1': 'Объясни проще',
+        'tutor.q2': 'Приведи пример',
+        'tutor.q3': 'Задай мне вопрос',
+
+        // Leaderboard
+        'class.tab.leaderboard': 'Рейтинг',
+        'class.leaderboard.title': 'Рейтинг класса',
+        'class.leaderboard.you': 'вы',
+        'class.leaderboard.empty': 'Пока нет данных',
+
+        // Profile stats
+        'profile.stats': 'Статистика',
+        'profile.badges': 'Достижения',
+        'profile.certificates': 'Мои сертификаты',
+        'profile.lessonsCount': 'Уроков',
+        'profile.coursesCount': 'Курсов',
     },
     en: {
         // Navigation
@@ -207,7 +277,8 @@ export const translations = {
         'course.result': 'Result:',
         'course.backToModule': '← Back to Module',
         'course.completeLesson': 'Complete Lesson',
-        'course.completedLesson': 'Lesson Completed ✓',
+        'course.completedLesson': 'Lesson Completed',
+        'course.assignmentsLocked': 'Complete all lessons to unlock assignments',
 
         // Class
         'class.title': 'My Class',
@@ -281,5 +352,74 @@ export const translations = {
         'assignment.needsImprovement': 'Needs improvement!',
         'assignment.correctCount': 'Correct answers:',
         'assignment.enterAnswer': 'Enter your answer...',
+
+        // Certificate
+        'cert.label': 'Certificate',
+        'cert.title': 'Course Completed!',
+        'cert.awardedTo': 'Awarded to',
+        'cert.forCourse': 'For completing the course',
+        'cert.date': 'Date',
+        'cert.modules': 'Modules',
+        'cert.lessons': 'Lessons',
+        'cert.close': 'Awesome! 🎉',
+        'cert.download': 'Download',
+        'cert.view': 'Certificate',
+
+        // Gamification
+        'gamification.streak': 'Streak',
+        'gamification.days': 'd.',
+        'level.1': 'Beginner',
+        'level.2': 'Student',
+        'level.3': 'Scholar',
+        'level.4': 'Master',
+        'level.5': 'Expert',
+        'level.6': 'Guru',
+        'level.7': 'Legend',
+
+        // Badges
+        'badge.first_lesson': 'First Lesson',
+        'badge.first_lesson.desc': 'Complete your first lesson',
+        'badge.first_course': 'First Course',
+        'badge.first_course.desc': 'Complete your first course',
+        'badge.streak_3': '3-Day Streak',
+        'badge.streak_3.desc': 'Study 3 days in a row',
+        'badge.streak_7': 'Week on Fire',
+        'badge.streak_7.desc': 'Study 7 days in a row',
+        'badge.streak_30': 'Month of Knowledge',
+        'badge.streak_30.desc': 'Study 30 days in a row',
+        'badge.perfect_score': 'Perfect Score',
+        'badge.perfect_score.desc': '100% on a test',
+        'badge.module_master': 'Module Master',
+        'badge.module_master.desc': 'Complete a module',
+        'badge.speed_learner': 'Speed Learner',
+        'badge.speed_learner.desc': '5 lessons in one day',
+        'badge.social': 'Team Player',
+        'badge.social.desc': 'Join a class',
+        'badge.ten_lessons': '10 Lessons',
+        'badge.ten_lessons.desc': 'Complete 10 lessons',
+
+        // AI Tutor
+        'tutor.button': 'AI Tutor',
+        'tutor.title': 'AI Tutor',
+        'tutor.subtitle': 'Ask about this lesson',
+        'tutor.empty': 'Ask a question about the lesson',
+        'tutor.placeholder': "What's unclear?",
+        'tutor.thinking': 'Thinking...',
+        'tutor.q1': 'Explain simpler',
+        'tutor.q2': 'Give an example',
+        'tutor.q3': 'Quiz me',
+
+        // Leaderboard
+        'class.tab.leaderboard': 'Leaderboard',
+        'class.leaderboard.title': 'Class Leaderboard',
+        'class.leaderboard.you': 'you',
+        'class.leaderboard.empty': 'No data yet',
+
+        // Profile stats
+        'profile.stats': 'Statistics',
+        'profile.badges': 'Achievements',
+        'profile.certificates': 'My Certificates',
+        'profile.lessonsCount': 'Lessons',
+        'profile.coursesCount': 'Courses',
     }
 };

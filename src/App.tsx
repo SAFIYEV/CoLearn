@@ -2,6 +2,7 @@
 import { useState, useEffect } from 'react';
 import { getCurrentUser } from './services/auth';
 import { getCourses } from './services/storage';
+import { getUserGamification, getLevel, recordDailyLogin } from './services/gamification';
 import type { User, Course } from './types';
 import AuthPage from './components/AuthPage';
 import Dashboard from './components/Dashboard';
@@ -52,6 +53,7 @@ function App() {
   const handleLogin = (loggedInUser: User) => {
     setUser(loggedInUser);
     loadCourses(loggedInUser.id);
+    recordDailyLogin(loggedInUser.id);
   };
 
   const handleLogout = () => {
@@ -239,6 +241,49 @@ function App() {
               )}
             </div>
 
+            {/* XP Widget */}
+            {user && (() => {
+              const gam = getUserGamification(user.id);
+              const lvl = getLevel(gam.xp);
+              return (
+                <div style={{
+                  marginBottom: '20px', padding: '14px 16px',
+                  background: 'var(--bg-secondary)', borderRadius: '14px',
+                  border: '1px solid var(--border-medium)',
+                  position: 'relative', zIndex: 1
+                }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      <span style={{ fontSize: '18px' }}>⭐</span>
+                      <span style={{ fontWeight: '700', fontSize: '16px', color: 'var(--text-primary)' }}>{gam.xp} XP</span>
+                    </div>
+                    <div style={{
+                      padding: '3px 10px', borderRadius: '12px',
+                      background: 'var(--accent-gradient)', color: 'white',
+                      fontSize: '12px', fontWeight: '700'
+                    }}>
+                      {t(lvl.nameKey)}
+                    </div>
+                  </div>
+                  {/* XP Progress bar */}
+                  <div style={{
+                    width: '100%', height: '6px', background: 'var(--bg-tertiary)',
+                    borderRadius: '3px', overflow: 'hidden', marginBottom: '8px'
+                  }}>
+                    <div style={{
+                      width: `${lvl.progress}%`, height: '100%',
+                      background: 'var(--accent-gradient)',
+                      borderRadius: '3px', transition: 'width 0.5s ease'
+                    }} />
+                  </div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px', color: 'var(--text-tertiary)' }}>
+                    <span>🔥 {t('gamification.streak')}: {gam.streak} {t('gamification.days')}</span>
+                    <span>🏅 {gam.badges.length}</span>
+                  </div>
+                </div>
+              );
+            })()}
+
             <nav style={{ flex: 1, position: 'relative', zIndex: 1 }}>
               <NavButton
                 active={view === 'dashboard'}
@@ -279,13 +324,14 @@ function App() {
                 position: 'relative',
                 zIndex: 1
               }}>
-                <div className="card" style={{
+                <div style={{
                   padding: '16px',
                   display: 'flex',
                   alignItems: 'center',
                   gap: '12px',
                   background: 'var(--glass-bg)',
                   border: '1px solid var(--border-medium)',
+                  borderRadius: '16px',
                   cursor: 'pointer',
                   transition: 'all 0.3s ease'
                 }}
@@ -372,6 +418,7 @@ function App() {
           {view === 'profile' && (
             <Profile
               user={user}
+              courses={courses}
               onUpdate={setUser}
               onLogout={handleLogout}
             />
@@ -393,7 +440,6 @@ function NavButton({ active, onClick, icon, label }: NavButtonProps) {
   return (
     <button
       onClick={onClick}
-      className="card"
       style={{
         width: '100%',
         padding: '16px 18px',

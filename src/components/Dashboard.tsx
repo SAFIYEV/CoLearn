@@ -3,6 +3,7 @@ import type { Course, User } from '../types';
 import { deleteCourse } from '../services/storage';
 import React, { useState } from 'react';
 import { useLanguage } from '../contexts/LanguageContext';
+import { downloadCertificateImage } from '../services/certificate';
 
 interface DashboardProps {
     user: User;
@@ -91,6 +92,7 @@ export default function Dashboard({ user, courses, onSelectCourse, onCreateNew, 
                             <CourseCard
                                 key={course.id}
                                 course={course}
+                                userName={user.name}
                                 onClick={() => onSelectCourse(course)}
                                 onDelete={() => {
                                     deleteCourse(course.id, user.id);
@@ -119,6 +121,7 @@ export default function Dashboard({ user, courses, onSelectCourse, onCreateNew, 
                             <CourseCard
                                 key={course.id}
                                 course={course}
+                                userName={user.name}
                                 onClick={() => onSelectCourse(course)}
                                 onDelete={() => {
                                     deleteCourse(course.id, user.id);
@@ -133,7 +136,7 @@ export default function Dashboard({ user, courses, onSelectCourse, onCreateNew, 
     );
 }
 
-function CourseCard({ course, onClick, onDelete }: { course: Course; onClick: () => void; onDelete: () => void }) {
+function CourseCard({ course, userName, onClick, onDelete }: { course: Course; userName: string; onClick: () => void; onDelete: () => void }) {
     const { t } = useLanguage();
     const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
@@ -317,11 +320,58 @@ function CourseCard({ course, onClick, onDelete }: { course: Course; onClick: ()
             <div style={{
                 display: 'flex',
                 justifyContent: 'space-between',
+                alignItems: 'center',
                 fontSize: '13px',
                 color: 'var(--text-tertiary)',
                 fontWeight: '500'
             }}>
                 <span>📚 {course.modules.length} {t('dashboard.modules')}</span>
+                {course.status === 'completed' && (
+                    <button
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            downloadCertificateImage(
+                                {
+                                    userName,
+                                    courseTitle: course.title,
+                                    modulesCount: course.modules.length,
+                                    lessonsCount: course.modules.reduce((s, m) => s + m.lessons.length, 0),
+                                },
+                                {
+                                    label: t('cert.label'),
+                                    title: t('cert.title'),
+                                    awardedTo: t('cert.awardedTo'),
+                                    forCourse: t('cert.forCourse'),
+                                    date: t('cert.date'),
+                                    modules: t('cert.modules'),
+                                    lessons: t('cert.lessons'),
+                                }
+                            );
+                        }}
+                        style={{
+                            padding: '4px 10px',
+                            background: 'transparent',
+                            color: '#a78bfa',
+                            border: '1px solid rgba(139,92,246,0.3)',
+                            borderRadius: '8px',
+                            fontSize: '12px', fontWeight: '700',
+                            cursor: 'pointer',
+                            transition: 'all 0.2s ease',
+                            display: 'flex', alignItems: 'center', gap: '4px'
+                        }}
+                        onMouseEnter={(e) => {
+                            e.currentTarget.style.background = 'rgba(139,92,246,0.1)';
+                            e.currentTarget.style.borderColor = '#8b5cf6';
+                        }}
+                        onMouseLeave={(e) => {
+                            e.currentTarget.style.background = 'transparent';
+                            e.currentTarget.style.borderColor = 'rgba(139,92,246,0.3)';
+                        }}
+                        title={t('cert.download')}
+                    >
+                        📜 {t('cert.download')}
+                    </button>
+                )}
                 <span>⏱️ {course.duration} {t('dashboard.days')}</span>
             </div>
         </div>

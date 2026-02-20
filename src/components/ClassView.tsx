@@ -17,13 +17,14 @@ import {
 } from '../services/class';
 import { getCurrentUser } from '../services/auth';
 import { useLanguage } from '../contexts/LanguageContext';
+import { getClassLeaderboard, getLevel, getUserGamification } from '../services/gamification';
 
 export default function ClassView() {
     const { t } = useLanguage();
     const [currentUser, setCurrentUser] = useState<User | null>(null);
     const [userClass, setUserClass] = useState<ClassGroup | null>(null);
     const [classMembers, setClassMembers] = useState<User[]>([]);
-    const [activeTab, setActiveTab] = useState<'my-class' | 'search' | 'requests' | 'chat'>('my-class');
+    const [activeTab, setActiveTab] = useState<'my-class' | 'search' | 'requests' | 'chat' | 'leaderboard'>('my-class');
     const [searchQuery, setSearchQuery] = useState('');
     const [searchResults, setSearchResults] = useState<User[]>([]);
     const [invites, setInvites] = useState<(ClassInvite & { className: string, fromUserName: string })[]>([]);
@@ -46,23 +47,32 @@ export default function ClassView() {
     }, []);
 
     // Poll for chat messages
+    const prevMessageCountRef = useRef(0);
+
     useEffect(() => {
         if (!userClass || activeTab !== 'chat') return;
 
         const loadMessages = () => {
             const msgs = getClassMessages(userClass.id);
-            setChatMessages(msgs);
+            setChatMessages(prev => {
+                if (prev.length === msgs.length && msgs.length > 0 &&
+                    prev[prev.length - 1]?.id === msgs[msgs.length - 1]?.id) {
+                    return prev;
+                }
+                return msgs;
+            });
         };
 
         loadMessages();
-        const interval = setInterval(loadMessages, 2000); // Poll every 2s
+        const interval = setInterval(loadMessages, 2000);
         return () => clearInterval(interval);
     }, [userClass, activeTab]);
 
     useEffect(() => {
-        if (activeTab === 'chat') {
+        if (activeTab === 'chat' && chatMessages.length > prevMessageCountRef.current) {
             chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
         }
+        prevMessageCountRef.current = chatMessages.length;
     }, [chatMessages, activeTab]);
 
     const loadClassData = (userId: string) => {
@@ -258,6 +268,14 @@ export default function ClassView() {
                         style={tabBtnStyle('chat')}
                     >
                         {t('class.tab.chat')}
+                    </button>
+                )}
+                {userClass && (
+                    <button
+                        onClick={() => setActiveTab('leaderboard')}
+                        style={tabBtnStyle('leaderboard')}
+                    >
+                        🏆 {t('class.tab.leaderboard')}
                     </button>
                 )}
             </div>
@@ -531,6 +549,82 @@ export default function ClassView() {
                             {t('chat.send')}
                         </button>
                     </div>
+                </div>
+            )}
+
+            {/* Leaderboard Tab */}
+            {activeTab === 'leaderboard' && userClass && (
+                <div style={{ ...cardStyle, display: 'block', height: 'auto' }}>
+                    <h2 style={{ marginBottom: '24px', color: 'var(--text-primary)', fontSize: '22px', fontWeight: '700' }}>
+                        🏆 {t('class.leaderboard.title')}
+                    </h2>
+                    {(() => {
+                        const board = getClassLeaderboard(userClass.members);
+                        const medals = ['🥇', '🥈', '🥉'];
+                        return (
+                            <div>
+                                {board.map((entry, idx) => {
+                                    const member = classMembers.find(m => m.id === entry.userId);
+                                    if (!member) return null;
+                                    const lvl = getLevel(entry.xp);
+                                    const gam = getUserGamification(entry.userId);
+                                    const isMe = entry.userId === currentUser?.id;
+                                    return (
+                                        <div key={entry.userId} style={{
+                                            display: 'flex', alignItems: 'center', gap: '16px',
+                                            padding: '16px', marginBottom: '10px',
+                                            borderRadius: '14px',
+                                            background: isMe ? 'rgba(139,92,246,0.1)' : 'var(--bg-secondary)',
+                                            border: isMe ? '1px solid var(--accent-primary)' : '1px solid var(--border-medium)',
+                                            transition: 'all 0.2s ease'
+                                        }}>
+                                            <div style={{
+                                                width: '36px', textAlign: 'center',
+                                                fontSize: idx < 3 ? '24px' : '16px',
+                                                fontWeight: '800',
+                                                color: idx < 3 ? 'var(--text-primary)' : 'var(--text-tertiary)'
+                                            }}>
+                                                {idx < 3 ? medals[idx] : `#${idx + 1}`}
+                                            </div>
+                                            <div style={{
+                                                width: '40px', height: '40px', borderRadius: '50%',
+                                                background: 'var(--accent-gradient)',
+                                                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                                fontSize: '20px'
+                                            }}>
+                                                {member.avatar || '👤'}
+                                            </div>
+                                            <div style={{ flex: 1 }}>
+                                                <div style={{
+                                                    fontWeight: '600', fontSize: '15px',
+                                                    color: 'var(--text-primary)'
+                                                }}>
+                                                    {member.name} {isMe && <span style={{ fontSize: '12px', color: 'var(--accent-primary)' }}>({t('class.leaderboard.you')})</span>}
+                                                </div>
+                                                <div style={{ fontSize: '12px', color: 'var(--text-tertiary)', display: 'flex', gap: '12px', marginTop: '2px' }}>
+                                                    <span>{t(lvl.nameKey)}</span>
+                                                    <span>🔥 {gam.streak} {t('gamification.days')}</span>
+                                                    <span>🏅 {gam.badges.length}</span>
+                                                </div>
+                                            </div>
+                                            <div style={{
+                                                fontWeight: '800', fontSize: '18px',
+                                                background: 'linear-gradient(135deg, #fbbf24, #f59e0b)',
+                                                WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent'
+                                            }}>
+                                                {entry.xp} XP
+                                            </div>
+                                        </div>
+                                    );
+                                })}
+                                {board.length === 0 && (
+                                    <div style={{ textAlign: 'center', color: 'var(--text-tertiary)', padding: '40px 0' }}>
+                                        {t('class.leaderboard.empty')}
+                                    </div>
+                                )}
+                            </div>
+                        );
+                    })()}
                 </div>
             )}
         </div>
