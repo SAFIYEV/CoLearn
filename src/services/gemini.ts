@@ -3,8 +3,10 @@ import type { Course } from '../types';
 
 const API_KEY = import.meta.env.VITE_GEMINI_API_KEY;
 const TUTOR_API_KEY = import.meta.env.VITE_GEMINI_TUTOR_API_KEY || API_KEY;
+const BACKUP_API_KEY = import.meta.env.VITE_GEMINI_BACKUP_API_KEY || API_KEY;
 const genAI = new GoogleGenerativeAI(API_KEY);
 const tutorAI = new GoogleGenerativeAI(TUTOR_API_KEY);
+const backupAI = new GoogleGenerativeAI(BACKUP_API_KEY);
 
 
 export async function generateCourse(goal: string, duration: number): Promise<Course> {
@@ -173,18 +175,18 @@ STRICT RULES:
 5. Use simple line breaks to separate thoughts.
 6. Be friendly but brief.`;
 
-  try {
-    const model = tutorAI.getGenerativeModel({ model: 'gemini-3-flash-preview' });
-    const result = await model.generateContent(prompt);
-    const response = await result.response;
-    return response.text();
-  } catch (err) {
-    console.error('Tutor API (tutor key) failed, trying main key:', err);
-    const model = genAI.getGenerativeModel({ model: 'gemini-3-flash-preview' });
-    const result = await model.generateContent(prompt);
-    const response = await result.response;
-    return response.text();
+  const keys = [tutorAI, genAI, backupAI];
+  for (let i = 0; i < keys.length; i++) {
+    try {
+      const model = keys[i].getGenerativeModel({ model: 'gemini-3-flash-preview' });
+      const result = await model.generateContent(prompt);
+      const response = await result.response;
+      return response.text();
+    } catch (err) {
+      console.error(`Tutor key ${i + 1} failed:`, err);
+    }
   }
+  throw new Error('All API keys failed');
 }
 
 export async function checkAssignment(userAnswers: any[], questions: any[]): Promise<number> {
