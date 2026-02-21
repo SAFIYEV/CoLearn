@@ -8,6 +8,14 @@ const genAI = new GoogleGenerativeAI(API_KEY);
 const tutorAI = new GoogleGenerativeAI(TUTOR_API_KEY);
 const backupAI = new GoogleGenerativeAI(BACKUP_API_KEY);
 
+const ARENA_KEYS = [
+  import.meta.env.VITE_GEMINI_ARENA_KEY_1,
+  import.meta.env.VITE_GEMINI_ARENA_KEY_2,
+  import.meta.env.VITE_GEMINI_ARENA_KEY_3,
+  import.meta.env.VITE_GEMINI_ARENA_KEY_4,
+].filter(Boolean);
+const arenaAIs = ARENA_KEYS.map(k => new GoogleGenerativeAI(k));
+
 
 export async function generateCourse(goal: string, duration: number): Promise<Course> {
   const model = genAI.getGenerativeModel({ model: 'gemini-3-flash-preview' });
@@ -197,4 +205,166 @@ export async function checkAssignment(userAnswers: any[], questions: any[]): Pro
     }
   });
   return Math.round((score / questions.length) * 100);
+}
+
+export async function generateDuelQuestions(topic: string, count: number = 5, lang: string = 'ru'): Promise<any[]> {
+  const prompt = `Generate ${count} unique, challenging quiz questions about "${topic}" for a competitive knowledge duel.
+Each question must have exactly 4 options with one correct answer.
+Mix difficulty: 2 easy, 2 medium, 1 hard.
+
+Return ONLY a JSON array:
+[
+  {
+    "question": "Question text",
+    "options": ["A", "B", "C", "D"],
+    "correctAnswer": "A",
+    "difficulty": "easy"
+  }
+]
+
+IMPORTANT: "correctAnswer" must be EXACTLY one of the strings in the "options" array.
+${lang === 'ru' ? 'All content MUST be in Russian.' : 'All content MUST be in English.'}
+Return ONLY the JSON array, no extra text.`;
+
+  const pools = arenaAIs.length > 0 ? arenaAIs : [genAI, tutorAI, backupAI];
+  for (let i = 0; i < pools.length; i++) {
+    try {
+      const model = pools[i].getGenerativeModel({ model: 'gemini-3-flash-preview' });
+      const result = await model.generateContent(prompt);
+      const text = result.response.text();
+      const jsonMatch = text.match(/\[[\s\S]*\]/);
+      if (!jsonMatch) throw new Error('No JSON array in response');
+      return JSON.parse(jsonMatch[0]);
+    } catch (err) {
+      console.error(`Arena duel key ${i + 1} failed:`, err);
+      if (i === pools.length - 1) throw err;
+    }
+  }
+  throw new Error('All API keys failed for duel questions');
+}
+
+export async function generateBossResponse(
+  topic: string,
+  difficulty: string,
+  bossName: string,
+  conversationHistory: { role: string; content: string }[],
+  playerMessage: string,
+  lang: string = 'ru'
+): Promise<{ response: string; playerDamage: number; bossDamage: number }> {
+  const historyText = conversationHistory
+    .slice(-6)
+    .map(m => `${m.role === 'boss' ? bossName : 'Player'}: ${m.content}`)
+    .join('\n');
+
+  const prompt = `You are ${bossName}, an extremely tough examiner in a Boss Fight knowledge game.
+Topic: "${topic}". Difficulty: ${difficulty}.
+
+Your personality: You are sarcastic, demanding, and deeply knowledgeable. You challenge every answer, ask follow-up questions, and try to find gaps in knowledge. You're like a final boss in an RPG.
+
+Conversation so far:
+${historyText}
+
+Player's latest answer: "${playerMessage}"
+
+RULES:
+1. Evaluate the player's answer quality (0-100 scale).
+2. If answer is good (70+): acknowledge briefly, then ask a HARDER follow-up. Player deals damage to you.
+3. If answer is weak (<70): point out the flaw aggressively, deal damage to player.
+4. Keep responses SHORT (2-4 sentences max).
+5. Always end with a new challenging question or statement.
+
+Return JSON:
+{
+  "response": "Your response as ${bossName}",
+  "playerDamage": 0-25,
+  "bossDamage": 0-20
+}
+
+playerDamage = damage TO the player (when answer is bad).
+bossDamage = damage TO the boss (when answer is good).
+
+${lang === 'ru' ? 'Respond in Russian.' : 'Respond in English.'}
+Return ONLY JSON.`;
+
+  const pools = arenaAIs.length > 0 ? arenaAIs : [genAI, tutorAI, backupAI];
+  for (let i = 0; i < pools.length; i++) {
+    try {
+      const model = pools[i].getGenerativeModel({ model: 'gemini-3-flash-preview' });
+      const result = await model.generateContent(prompt);
+      const text = result.response.text();
+      const jsonMatch = text.match(/\{[\s\S]*\}/);
+      if (!jsonMatch) throw new Error('No JSON in response');
+      return JSON.parse(jsonMatch[0]);
+    } catch (err) {
+      console.error(`Boss response key ${i + 1} failed:`, err);
+      if (i === pools.length - 1) throw err;
+    }
+  }
+  throw new Error('All API keys failed');
+}
+
+export async function generateBossIntro(
+  topic: string,
+  difficulty: string,
+  bossName: string,
+  lang: string = 'ru'
+): Promise<string> {
+  const prompt = `You are ${bossName}, a legendary tough examiner in a Boss Fight knowledge game.
+Topic: "${topic}". Difficulty: ${difficulty}.
+
+Generate a dramatic, intimidating introduction (2-3 sentences). Then ask your first challenging question about the topic. Be theatrical and RPG-like.
+
+${lang === 'ru' ? 'Respond in Russian.' : 'Respond in English.'}
+Return plain text only, no JSON.`;
+
+  const pools = arenaAIs.length > 0 ? arenaAIs : [genAI, tutorAI, backupAI];
+  for (let i = 0; i < pools.length; i++) {
+    try {
+      const model = pools[i].getGenerativeModel({ model: 'gemini-3-flash-preview' });
+      const result = await model.generateContent(prompt);
+      return result.response.text();
+    } catch (err) {
+      console.error(`Boss intro key ${i + 1} failed:`, err);
+      if (i === pools.length - 1) throw err;
+    }
+  }
+  throw new Error('All API keys failed');
+}
+
+export async function generateHeistChallenges(topic: string, count: number = 4, lang: string = 'ru'): Promise<any[]> {
+  const prompt = `Generate ${count} challenges for a "Knowledge Heist" game about "${topic}".
+Mix types: quiz questions with 4 options and logic puzzles.
+Each challenge should be progressively harder ("locks" to crack).
+
+Return JSON array:
+[
+  {
+    "type": "quiz",
+    "question": "Question text",
+    "options": ["A", "B", "C", "D"],
+    "correctAnswer": "A",
+    "timeLimit": 30,
+    "points": 100
+  }
+]
+
+timeLimit in seconds (20-60). points from 50 to 200 based on difficulty.
+${lang === 'ru' ? 'All content in Russian.' : 'All content in English.'}
+Return ONLY JSON array.`;
+
+  const pools = arenaAIs.length > 0 ? arenaAIs : [genAI, tutorAI, backupAI];
+  for (let i = 0; i < pools.length; i++) {
+    try {
+      const model = pools[i].getGenerativeModel({ model: 'gemini-3-flash-preview' });
+      const result = await model.generateContent(prompt);
+      const text = result.response.text();
+      const jsonMatch = text.match(/\[[\s\S]*\]/);
+      if (!jsonMatch) throw new Error('Failed to parse heist challenges');
+      return JSON.parse(jsonMatch[0]);
+    } catch (err) {
+      console.error(`Heist key ${i + 1} failed:`, err);
+      if (i === pools.length - 1) throw err;
+    }
+  }
+  throw new Error('All API keys failed for heist challenges');
 }

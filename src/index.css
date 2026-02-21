@@ -316,6 +316,63 @@ button:not(.no-theme-transition),
   }
 }
 
+/* Arena Animations */
+@keyframes hpDrain {
+  0% { filter: brightness(1); }
+  50% { filter: brightness(1.5) hue-rotate(20deg); }
+  100% { filter: brightness(1); }
+}
+
+@keyframes shakeHit {
+  0%, 100% { transform: translateX(0); }
+  10% { transform: translateX(-8px) rotate(-1deg); }
+  30% { transform: translateX(6px) rotate(1deg); }
+  50% { transform: translateX(-4px); }
+  70% { transform: translateX(2px); }
+}
+
+@keyframes bossEntrance {
+  0% { opacity: 0; transform: scale(1.5) translateY(-40px); filter: brightness(2); }
+  60% { opacity: 1; transform: scale(0.95) translateY(5px); }
+  100% { opacity: 1; transform: scale(1) translateY(0); filter: brightness(1); }
+}
+
+@keyframes swordSlash {
+  0% { transform: rotate(-45deg) scale(0); opacity: 0; }
+  50% { transform: rotate(15deg) scale(1.2); opacity: 1; }
+  100% { transform: rotate(0deg) scale(1); opacity: 0; }
+}
+
+@keyframes victoryGlow {
+  0%, 100% { box-shadow: 0 0 20px rgba(16, 185, 129, 0.3); }
+  50% { box-shadow: 0 0 60px rgba(16, 185, 129, 0.6), 0 0 100px rgba(16, 185, 129, 0.3); }
+}
+
+@keyframes defeatShake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-5px); }
+  75% { transform: translateX(5px); }
+}
+
+@keyframes timerPulse {
+  0%, 100% { transform: scale(1); color: var(--text-primary); }
+  50% { transform: scale(1.1); color: var(--error); }
+}
+
+@keyframes lockOpen {
+  0% { transform: rotate(0deg); }
+  30% { transform: rotate(-15deg); }
+  60% { transform: rotate(5deg); }
+  100% { transform: rotate(0deg) scale(1.1); }
+}
+
+.arena-hit { animation: shakeHit 0.4s ease; }
+.arena-boss-enter { animation: bossEntrance 0.8s cubic-bezier(0.4, 0, 0.2, 1); }
+.arena-victory { animation: victoryGlow 1.5s ease 3; }
+.arena-defeat { animation: defeatShake 0.5s ease 2; }
+.arena-timer-urgent { animation: timerPulse 0.5s ease infinite; }
+.arena-lock-open { animation: lockOpen 0.6s ease; }
+
 /* Utility classes */
 .fade-in {
   animation: fadeIn 0.5s ease;

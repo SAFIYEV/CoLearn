@@ -29,6 +29,10 @@ export const ALL_BADGES: Badge[] = [
     { id: 'speed_learner', icon: '⚡', nameKey: 'badge.speed_learner', descKey: 'badge.speed_learner.desc' },
     { id: 'social', icon: '👥', nameKey: 'badge.social', descKey: 'badge.social.desc' },
     { id: 'ten_lessons', icon: '📚', nameKey: 'badge.ten_lessons', descKey: 'badge.ten_lessons.desc' },
+    { id: 'first_duel', icon: '⚔️', nameKey: 'badge.first_duel', descKey: 'badge.first_duel.desc' },
+    { id: 'boss_slayer', icon: '🐉', nameKey: 'badge.boss_slayer', descKey: 'badge.boss_slayer.desc' },
+    { id: 'arena_streak_3', icon: '🔥', nameKey: 'badge.arena_streak_3', descKey: 'badge.arena_streak_3.desc' },
+    { id: 'heist_master', icon: '🔓', nameKey: 'badge.heist_master', descKey: 'badge.heist_master.desc' },
 ];
 
 export const LEVELS = [
@@ -215,4 +219,44 @@ export function getClassLeaderboard(memberIds: string[]): { userId: string; xp: 
             return { userId: id, xp: g.xp, level: getLevel(g.xp).level, streak: g.streak };
         })
         .sort((a, b) => b.xp - a.xp);
+}
+
+export function awardDuelWin(userId: string): XpEvent {
+    const g = getUserGamification(userId);
+    const oldLevel = getLevel(g.xp).level;
+    updateStreak(g);
+    g.xp += 75;
+    if (!g.badges.includes('first_duel')) g.badges.push('first_duel');
+    const newBadges = checkBadges(g);
+    if (!newBadges.includes('first_duel')) newBadges.push('first_duel');
+    save(g);
+    const newLevel = getLevel(g.xp).level;
+    return { xpGained: 75, newBadges, leveledUp: newLevel > oldLevel, oldLevel, newLevel };
+}
+
+export function awardBossDefeat(userId: string, difficulty: string): XpEvent {
+    const g = getUserGamification(userId);
+    const oldLevel = getLevel(g.xp).level;
+    updateStreak(g);
+    const xp = difficulty === 'nightmare' ? 300 : difficulty === 'hard' ? 200 : 150;
+    g.xp += xp;
+    if (!g.badges.includes('boss_slayer')) g.badges.push('boss_slayer');
+    const newBadges = checkBadges(g);
+    if (!newBadges.includes('boss_slayer')) newBadges.push('boss_slayer');
+    save(g);
+    const newLevel = getLevel(g.xp).level;
+    return { xpGained: xp, newBadges, leveledUp: newLevel > oldLevel, oldLevel, newLevel };
+}
+
+export function awardHeistWin(userId: string): XpEvent {
+    const g = getUserGamification(userId);
+    const oldLevel = getLevel(g.xp).level;
+    updateStreak(g);
+    g.xp += 100;
+    if (!g.badges.includes('heist_master')) g.badges.push('heist_master');
+    const newBadges = checkBadges(g);
+    if (!newBadges.includes('heist_master')) newBadges.push('heist_master');
+    save(g);
+    const newLevel = getLevel(g.xp).level;
+    return { xpGained: 100, newBadges, leveledUp: newLevel > oldLevel, oldLevel, newLevel };
 }

@@ -1,5 +1,5 @@
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import type { User, Course } from '../types';
 import { updateProfile, logout as authLogout } from '../services/auth';
 import { useLanguage } from '../contexts/LanguageContext';
@@ -16,6 +16,12 @@ interface ProfileProps {
 
 export default function Profile({ user, courses, onUpdate, onLogout }: ProfileProps) {
     const { t, language, setLanguage } = useLanguage();
+    const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+    useEffect(() => {
+        const h = () => setIsMobile(window.innerWidth < 768);
+        window.addEventListener('resize', h);
+        return () => window.removeEventListener('resize', h);
+    }, []);
     const { theme, toggleTheme } = useTheme();
     const [name, setName] = useState(user.name);
     const [avatar, setAvatar] = useState(user.avatar || '');
@@ -281,7 +287,7 @@ export default function Profile({ user, courses, onUpdate, onLogout }: ProfilePr
                             <h3 style={{ fontSize: '18px', marginBottom: '20px', color: 'var(--text-primary)', fontWeight: '600' }}>
                                 📊 {t('profile.stats')}
                             </h3>
-                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '16px', marginBottom: '20px' }}>
+                            <div style={{ display: 'grid', gridTemplateColumns: isMobile ? 'repeat(2, 1fr)' : 'repeat(4, 1fr)', gap: isMobile ? '10px' : '16px', marginBottom: '20px' }}>
                                 {[
                                     { icon: '⭐', value: gam.xp, label: 'XP' },
                                     { icon: '🔥', value: gam.streak, label: t('gamification.streak') },
@@ -310,7 +316,7 @@ export default function Profile({ user, courses, onUpdate, onLogout }: ProfilePr
                             <h3 style={{ fontSize: '18px', marginBottom: '20px', color: 'var(--text-primary)', fontWeight: '600' }}>
                                 🏅 {t('profile.badges')}
                             </h3>
-                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: '12px' }}>
+                            <div style={{ display: 'grid', gridTemplateColumns: isMobile ? 'repeat(3, 1fr)' : 'repeat(5, 1fr)', gap: isMobile ? '8px' : '12px' }}>
                                 {ALL_BADGES.map(badge => {
                                     const earned = gam.badges.includes(badge.id);
                                     return (

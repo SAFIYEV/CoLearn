@@ -11,9 +11,10 @@ import CourseView from './components/CourseView';
 import AIChat from './components/AIChat';
 import Profile from './components/Profile';
 import ClassView from './components/ClassView';
+import ArenaView from './components/ArenaView';
 import { useLanguage } from './contexts/LanguageContext';
 
-type View = 'dashboard' | 'generator' | 'course' | 'chat' | 'profile' | 'class';
+type View = 'dashboard' | 'generator' | 'course' | 'chat' | 'profile' | 'class' | 'arena';
 
 function App() {
   const { t } = useLanguage();
@@ -298,6 +299,12 @@ function App() {
                 label={t('nav.create')}
               />
               <NavButton
+                active={view === 'arena'}
+                onClick={() => handleNavClick('arena')}
+                icon="⚔️"
+                label={t('nav.arena')}
+              />
+              <NavButton
                 active={view === 'chat'}
                 onClick={() => handleNavClick('chat')}
                 icon="💬"
@@ -410,6 +417,8 @@ function App() {
               onBack={handleBackToDashboard}
             />
           )}
+
+          {view === 'arena' && user && <ArenaView user={user} />}
 
           {view === 'chat' && <AIChat />}
 

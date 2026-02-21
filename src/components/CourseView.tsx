@@ -7,6 +7,7 @@ import { useLanguage } from '../contexts/LanguageContext';
 import { awardLessonComplete, awardAssignmentComplete, awardModuleComplete, awardCourseComplete, type XpEvent, ALL_BADGES } from '../services/gamification';
 import { askTutor } from '../services/gemini';
 import { downloadCertificateImage } from '../services/certificate';
+import { downloadLessonPdf, downloadCoursePdf } from '../services/pdf';
 
 interface CourseViewProps {
     user: User;
@@ -122,7 +123,7 @@ function AnimatedProgress({ progress, label, completeLabel }: { progress: number
 }
 
 export default function CourseView({ user, course: initialCourse, onBack }: CourseViewProps) {
-    const { t } = useLanguage();
+    const { t, language } = useLanguage();
     const [course, setCourse] = useState(initialCourse);
     const [selectedModule, setSelectedModule] = useState(0);
     const [selectedLesson, setSelectedLesson] = useState<number | null>(null);
@@ -511,6 +512,30 @@ export default function CourseView({ user, course: initialCourse, onBack }: Cour
                     );
                 })}
 
+                <button
+                    onClick={() => downloadCoursePdf(course)}
+                    style={{
+                        width: '100%', padding: '12px', marginTop: '8px',
+                        background: 'var(--bg-elevated)',
+                        color: 'var(--text-secondary)', border: '1px solid var(--border-medium)',
+                        borderRadius: '12px', fontSize: '14px', fontWeight: '600',
+                        cursor: 'pointer', transition: 'all 0.3s ease',
+                        display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px'
+                    }}
+                    onMouseEnter={(e) => {
+                        e.currentTarget.style.borderColor = '#ef4444';
+                        e.currentTarget.style.color = '#ef4444';
+                        e.currentTarget.style.transform = 'translateY(-2px)';
+                    }}
+                    onMouseLeave={(e) => {
+                        e.currentTarget.style.borderColor = 'var(--border-medium)';
+                        e.currentTarget.style.color = 'var(--text-secondary)';
+                        e.currentTarget.style.transform = 'translateY(0)';
+                    }}
+                >
+                    📄 {language === 'ru' ? 'Скачать курс PDF' : 'Download Course PDF'}
+                </button>
+
                 {course.progress === 100 && (
                     <button
                         onClick={() => setShowCertificate(true)}
@@ -708,6 +733,26 @@ export default function CourseView({ user, course: initialCourse, onBack }: Cour
                                 }}
                             >
                                 🤖 {t('tutor.button')}
+                            </button>
+                            <button
+                                onClick={() => downloadLessonPdf(
+                                    currentModule.lessons[selectedLesson],
+                                    currentModule.title,
+                                    course.title
+                                )}
+                                style={{
+                                    padding: '10px 16px',
+                                    background: 'var(--bg-elevated)',
+                                    color: 'var(--text-secondary)',
+                                    border: '1px solid var(--border-medium)',
+                                    borderRadius: '8px', cursor: 'pointer', fontWeight: '600',
+                                    display: 'flex', alignItems: 'center', gap: '8px',
+                                    transition: 'all 0.2s ease',
+                                }}
+                                onMouseEnter={(e) => { e.currentTarget.style.borderColor = '#ef4444'; e.currentTarget.style.color = '#ef4444'; }}
+                                onMouseLeave={(e) => { e.currentTarget.style.borderColor = 'var(--border-medium)'; e.currentTarget.style.color = 'var(--text-secondary)'; }}
+                            >
+                                📄 PDF
                             </button>
                         </div>
 
