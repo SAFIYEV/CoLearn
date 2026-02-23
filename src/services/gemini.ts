@@ -29,14 +29,6 @@ async function groqChat(messages: { role: string; content: string }[], temperatu
   return data.choices?.[0]?.message?.content ?? '';
 }
 
-const ARENA_KEYS = [
-  import.meta.env.VITE_GEMINI_ARENA_KEY_1,
-  import.meta.env.VITE_GEMINI_ARENA_KEY_2,
-  import.meta.env.VITE_GEMINI_ARENA_KEY_3,
-  import.meta.env.VITE_GEMINI_ARENA_KEY_4,
-].filter(Boolean);
-const arenaAIs = ARENA_KEYS.map(k => new GoogleGenerativeAI(k));
-
 
 export async function generateCourse(goal: string, duration: number): Promise<Course> {
   const prompt = `
@@ -237,21 +229,10 @@ IMPORTANT: "correctAnswer" must be EXACTLY one of the strings in the "options" a
 ${lang === 'ru' ? 'All content MUST be in Russian.' : 'All content MUST be in English.'}
 Return ONLY the JSON array, no extra text.`;
 
-  const pools = arenaAIs.length > 0 ? arenaAIs : [genAI, tutorAI, backupAI];
-  for (let i = 0; i < pools.length; i++) {
-    try {
-      const model = pools[i].getGenerativeModel({ model: 'gemini-3-flash-preview' });
-      const result = await model.generateContent(prompt);
-      const text = result.response.text();
-      const jsonMatch = text.match(/\[[\s\S]*\]/);
-      if (!jsonMatch) throw new Error('No JSON array in response');
-      return JSON.parse(jsonMatch[0]);
-    } catch (err) {
-      console.error(`Arena duel key ${i + 1} failed:`, err);
-      if (i === pools.length - 1) throw err;
-    }
-  }
-  throw new Error('All API keys failed for duel questions');
+  const text = await groqChat([{ role: 'user', content: prompt }], 0.7, 4096);
+  const jsonMatch = text.match(/\[[\s\S]*\]/);
+  if (!jsonMatch) throw new Error('No JSON array in response');
+  return JSON.parse(jsonMatch[0]);
 }
 
 export async function generateBossResponse(
@@ -297,21 +278,10 @@ bossDamage = damage TO the boss (when answer is good).
 ${lang === 'ru' ? 'Respond in Russian.' : 'Respond in English.'}
 Return ONLY JSON.`;
 
-  const pools = arenaAIs.length > 0 ? arenaAIs : [genAI, tutorAI, backupAI];
-  for (let i = 0; i < pools.length; i++) {
-    try {
-      const model = pools[i].getGenerativeModel({ model: 'gemini-3-flash-preview' });
-      const result = await model.generateContent(prompt);
-      const text = result.response.text();
-      const jsonMatch = text.match(/\{[\s\S]*\}/);
-      if (!jsonMatch) throw new Error('No JSON in response');
-      return JSON.parse(jsonMatch[0]);
-    } catch (err) {
-      console.error(`Boss response key ${i + 1} failed:`, err);
-      if (i === pools.length - 1) throw err;
-    }
-  }
-  throw new Error('All API keys failed');
+  const text = await groqChat([{ role: 'user', content: prompt }], 0.7, 2048);
+  const jsonMatch = text.match(/\{[\s\S]*\}/);
+  if (!jsonMatch) throw new Error('No JSON in response');
+  return JSON.parse(jsonMatch[0]);
 }
 
 export async function generateBossIntro(
@@ -328,18 +298,7 @@ Generate a dramatic, intimidating introduction (2-3 sentences). Then ask your fi
 ${lang === 'ru' ? 'Respond in Russian.' : 'Respond in English.'}
 Return plain text only, no JSON.`;
 
-  const pools = arenaAIs.length > 0 ? arenaAIs : [genAI, tutorAI, backupAI];
-  for (let i = 0; i < pools.length; i++) {
-    try {
-      const model = pools[i].getGenerativeModel({ model: 'gemini-3-flash-preview' });
-      const result = await model.generateContent(prompt);
-      return result.response.text();
-    } catch (err) {
-      console.error(`Boss intro key ${i + 1} failed:`, err);
-      if (i === pools.length - 1) throw err;
-    }
-  }
-  throw new Error('All API keys failed');
+  return groqChat([{ role: 'user', content: prompt }], 0.7, 1024);
 }
 
 export async function generateHeistChallenges(topic: string, count: number = 4, lang: string = 'ru'): Promise<any[]> {
@@ -363,19 +322,8 @@ timeLimit in seconds (20-60). points from 50 to 200 based on difficulty.
 ${lang === 'ru' ? 'All content in Russian.' : 'All content in English.'}
 Return ONLY JSON array.`;
 
-  const pools = arenaAIs.length > 0 ? arenaAIs : [genAI, tutorAI, backupAI];
-  for (let i = 0; i < pools.length; i++) {
-    try {
-      const model = pools[i].getGenerativeModel({ model: 'gemini-3-flash-preview' });
-      const result = await model.generateContent(prompt);
-      const text = result.response.text();
-      const jsonMatch = text.match(/\[[\s\S]*\]/);
-      if (!jsonMatch) throw new Error('Failed to parse heist challenges');
-      return JSON.parse(jsonMatch[0]);
-    } catch (err) {
-      console.error(`Heist key ${i + 1} failed:`, err);
-      if (i === pools.length - 1) throw err;
-    }
-  }
-  throw new Error('All API keys failed for heist challenges');
+  const text = await groqChat([{ role: 'user', content: prompt }], 0.7, 4096);
+  const jsonMatch = text.match(/\[[\s\S]*\]/);
+  if (!jsonMatch) throw new Error('Failed to parse heist challenges');
+  return JSON.parse(jsonMatch[0]);
 }
