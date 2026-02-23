@@ -15,17 +15,7 @@ interface CourseViewProps {
     onBack: () => void;
 }
 
-function renderMarkdown(text: string) {
-    let html = text.replace(/### (.*?)\n/g, '<h3 style="font-size: 20px; font-weight: 600; margin: 20px 0 10px 0; color: var(--text-primary);">$1</h3>');
-    html = html.replace(/\*\*(.*?)\*\*/g, '<strong style="font-weight: 700; color: #667eea;">$1</strong>');
-    html = html.replace(/\*(.*?)\*/g, '<em style="font-style: italic;">$1</em>');
-    html = html.replace(/^> (.*?)$/gm, '<blockquote style="border-left: 4px solid var(--accent-primary); padding-left: 16px; margin: 16px 0; color: var(--text-secondary); font-style: italic;">$1</blockquote>');
-    html = html.replace(/^• (.*?)$/gm, '<li style="margin: 8px 0;">$1</li>');
-    html = html.replace(/(<li.*?<\/li>\n?)+/g, '<ul style="padding-left: 24px; margin: 16px 0;">$&</ul>');
-    html = html.replace(/\n\n/g, '</p><p style="margin: 16px 0; line-height: 1.8;">');
-    html = '<p style="margin: 16px 0; line-height: 1.8;">' + html + '</p>';
-    return html;
-}
+import { renderMarkdown } from '../services/markdown';
 
 function AnimatedProgress({ progress, label, completeLabel }: { progress: number; label: string; completeLabel: string }) {
     const [displayProgress, setDisplayProgress] = useState(progress);

@@ -3,27 +3,10 @@ import { sendChatMessage } from '../services/gemini';
 import { saveChatMessage, getChatHistory } from '../services/storage';
 import type { ChatMessage } from '../types';
 import { useLanguage } from '../contexts/LanguageContext';
+import { renderMarkdown as baseRenderMarkdown } from '../services/markdown';
 
-// Простой парсер markdown для отображения
 function renderMarkdown(text: string) {
-    // Заголовки
-    let html = text.replace(/### (.*?)\n/g, '<h3 style="font-size: 18px; font-weight: 600; margin: 16px 0 8px 0; color: #333;">$1</h3>');
-
-    // Жирный текст
-    html = html.replace(/\*\*(.*?)\*\*/g, '<strong style="font-weight: 700; color: #667eea;">$1</strong>');
-
-    // Курсив
-    html = html.replace(/\*(.*?)\*/g, '<em style="font-style: italic;">$1</em>');
-
-    // Списки
-    html = html.replace(/^[\*\-] (.*?)$/gm, '<li style="margin: 4px 0;">$1</li>');
-    html = html.replace(/(<li.*?<\/li>\n?)+/g, '<ul style="padding-left: 20px; margin: 12px 0;">$&</ul>');
-
-    // Параграфы
-    html = html.replace(/\n\n/g, '</p><p style="margin: 8px 0; line-height: 1.6;">');
-    html = '<p style="margin: 8px 0; line-height: 1.6;">' + html + '</p>';
-
-    return html;
+    return baseRenderMarkdown(text, 'chat');
 }
 
 export default function AIChat() {
