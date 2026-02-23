@@ -97,8 +97,8 @@ function updateStreak(g: UserGamification): void {
     } else {
         g.streak = 1;
     }
+    g.lessonsToday = 0;
     g.lastActiveDate = today;
-    if (today !== g.lastActiveDate) g.lessonsToday = 0;
 }
 
 function checkBadges(g: UserGamification): string[] {
@@ -159,11 +159,14 @@ export function awardAssignmentComplete(userId: string, score: number): XpEvent 
     const xp = score === 100 ? 100 : score >= 80 ? 75 : 50;
     g.xp += xp;
     g.totalAssignments += 1;
-    if (score === 100 && !g.badges.includes('perfect_score')) {
+    const hadPerfect = g.badges.includes('perfect_score');
+    if (score === 100 && !hadPerfect) {
         g.badges.push('perfect_score');
     }
     const newBadges = checkBadges(g);
-    if (score === 100 && !newBadges.includes('perfect_score')) newBadges.push('perfect_score');
+    if (score === 100 && !hadPerfect && !newBadges.includes('perfect_score')) {
+        newBadges.push('perfect_score');
+    }
     save(g);
     const newLevel = getLevel(g.xp).level;
     return { xpGained: xp, newBadges, leveledUp: newLevel > oldLevel, oldLevel, newLevel };
@@ -173,10 +176,14 @@ export function awardModuleComplete(userId: string): XpEvent {
     const g = getUserGamification(userId);
     const oldLevel = getLevel(g.xp).level;
     g.xp += 200;
-    if (!g.badges.includes('module_master')) {
+    const hadModuleMaster = g.badges.includes('module_master');
+    if (!hadModuleMaster) {
         g.badges.push('module_master');
     }
     const newBadges = checkBadges(g);
+    if (!hadModuleMaster && !newBadges.includes('module_master')) {
+        newBadges.push('module_master');
+    }
     save(g);
     const newLevel = getLevel(g.xp).level;
     return { xpGained: 200, newBadges, leveledUp: newLevel > oldLevel, oldLevel, newLevel };

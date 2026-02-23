@@ -1,12 +1,33 @@
-import { GoogleGenerativeAI } from '@google/generative-ai';
 import type { Course } from '../types';
 
-const API_KEY = import.meta.env.VITE_GEMINI_API_KEY;
-const TUTOR_API_KEY = import.meta.env.VITE_GEMINI_TUTOR_API_KEY || API_KEY;
-const BACKUP_API_KEY = import.meta.env.VITE_GEMINI_BACKUP_API_KEY || API_KEY;
-const genAI = new GoogleGenerativeAI(API_KEY);
-const tutorAI = new GoogleGenerativeAI(TUTOR_API_KEY);
-const backupAI = new GoogleGenerativeAI(BACKUP_API_KEY);
+const GROQ_API_KEY = import.meta.env.VITE_GROQ_API_KEY;
+const GROQ_MODEL = 'meta-llama/llama-4-scout-17b-16e-instruct';
+const GROQ_URL = 'https://api.groq.com/openai/v1/chat/completions';
+
+async function groqChat(messages: { role: string; content: string }[], temperature = 0.7, maxTokens = 16000): Promise<string> {
+  const res = await fetch(GROQ_URL, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${GROQ_API_KEY}`,
+    },
+    body: JSON.stringify({
+      model: GROQ_MODEL,
+      messages,
+      temperature,
+      max_tokens: maxTokens,
+    }),
+  });
+
+  if (!res.ok) {
+    const errBody = await res.text();
+    console.error('Groq API error:', res.status, errBody);
+    throw new Error(`Groq API error ${res.status}: ${errBody}`);
+  }
+
+  const data = await res.json();
+  return data.choices?.[0]?.message?.content ?? '';
+}
 
 const ARENA_KEYS = [
   import.meta.env.VITE_GEMINI_ARENA_KEY_1,
@@ -18,8 +39,6 @@ const arenaAIs = ARENA_KEYS.map(k => new GoogleGenerativeAI(k));
 
 
 export async function generateCourse(goal: string, duration: number): Promise<Course> {
-  const model = genAI.getGenerativeModel({ model: 'gemini-3-flash-preview' });
-
   const prompt = `
 Создай ПОДРОБНЫЙ и ИНТЕРЕСНЫЙ образовательный курс для следующей цели: "${goal}"
 Длительность курса: ${duration} дней
@@ -90,10 +109,11 @@ export async function generateCourse(goal: string, duration: number): Promise<Co
 Всегда адаптируй язык контента под язык запроса пользователя.
 `;
 
-  const result = await model.generateContent(prompt);
-  const response = await result.response;
-  const text = response.text();
-
+  const text = await groqChat(
+    [{ role: 'user', content: prompt }],
+    0.7,
+    16000,
+  );
 
   const jsonMatch = text.match(/\{[\s\S]*\}/);
   if (!jsonMatch) {
@@ -109,7 +129,6 @@ export async function generateCourse(goal: string, duration: number): Promise<Co
     console.error('JSON строка:', jsonMatch[0]);
     throw new Error('Не удалось распарсить JSON от API: ' + (parseError as Error).message);
   }
-
 
   if (!courseData.modules || !Array.isArray(courseData.modules)) {
     throw new Error('API вернул некорректную структуру: отсутствует массив modules');
@@ -155,25 +174,16 @@ export async function generateCourse(goal: string, duration: number): Promise<Co
 
 
 export async function sendChatMessage(message: string, context?: string): Promise<string> {
-  const model = genAI.getGenerativeModel({ model: 'gemini-3-flash-preview' });
-
-  const prompt = context
+  const userContent = context
     ? `Контекст: ${context}\n\nВопрос пользователя: ${message}\n\nОтвет (отвечай на языке вопроса пользователя):`
     : `${message}\n\n(Отвечай на языке вопроса пользователя)`;
 
-  const result = await model.generateContent(prompt);
-  const response = await result.response;
-  return response.text();
+  return groqChat([{ role: 'user', content: userContent }], 0.7, 4096);
 }
 
 
 export async function askTutor(lessonContent: string, userQuestion: string): Promise<string> {
-  const prompt = `You are an AI tutor on the CoLearn platform. A student is reading a lesson and asked a question.
-
-LESSON CONTENT:
-${lessonContent.slice(0, 3000)}
-
-STUDENT'S QUESTION: ${userQuestion}
+  const systemPrompt = `You are an AI tutor on the CoLearn platform. A student is reading a lesson and asked a question.
 
 STRICT RULES:
 1. ALWAYS respond in the SAME language as the student's question.
@@ -183,18 +193,19 @@ STRICT RULES:
 5. Use simple line breaks to separate thoughts.
 6. Be friendly but brief.`;
 
-  const keys = [tutorAI, genAI, backupAI];
-  for (let i = 0; i < keys.length; i++) {
-    try {
-      const model = keys[i].getGenerativeModel({ model: 'gemini-3-flash-preview' });
-      const result = await model.generateContent(prompt);
-      const response = await result.response;
-      return response.text();
-    } catch (err) {
-      console.error(`Tutor key ${i + 1} failed:`, err);
-    }
-  }
-  throw new Error('All API keys failed');
+  const userContent = `LESSON CONTENT:
+${lessonContent.slice(0, 3000)}
+
+STUDENT'S QUESTION: ${userQuestion}`;
+
+  return groqChat(
+    [
+      { role: 'system', content: systemPrompt },
+      { role: 'user', content: userContent },
+    ],
+    0.5,
+    1024,
+  );
 }
 
 export async function checkAssignment(userAnswers: any[], questions: any[]): Promise<number> {
